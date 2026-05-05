@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from 'react'
 import { 
   MessageCircle, ShoppingBag, Instagram, ChevronDown, Play, Heart, 
   Send, Bookmark, MoreHorizontal, ExternalLink, Users, Zap, Star,
-  Pin, Grid, Video, User, Phone
+  Pin, Grid, Video, User, Phone, Copy
 } from 'lucide-react'
 import FluidBackground from './components/FluidBackground'
 import CustomCursor from './components/CustomCursor'
@@ -84,12 +84,12 @@ const LINKS = [
 
 // ─── INSTAGRAM POSTS (Functional) ─────────────────────────────────────────────
 const POSTS = [
-  { id: 1, img: post1, likes: '12.4k', comments: '142', pinned: true, url: 'https://www.instagram.com/p/DPspMr3jM6D/' },
-  { id: 2, img: post2, likes: '9.1k', comments: '89', pinned: true, url: 'https://www.instagram.com/p/DOXKz_SjLlI/' },
-  { id: 3, img: post3, likes: '15.2k', comments: '245', pinned: true, url: 'https://www.instagram.com/p/CzP0ZU7Oxet/' },
-  { id: 4, img: post4, likes: '8.7k', comments: '112', pinned: false, url: 'https://www.instagram.com/p/DX8FCpuMlOT/' },
-  { id: 5, img: post5, likes: '11.3k', comments: '96', pinned: false, url: 'https://www.instagram.com/p/DX7Gk3OKy-g/' },
-  { id: 6, img: post6, likes: '14.7k', comments: '167', pinned: false, url: 'https://www.instagram.com/p/DX2k-daDtXs/?img_index=1' },
+  { id: 1, img: post1, likes: '12.4k', comments: '142', pinned: true, url: 'https://www.instagram.com/p/DPspMr3jM6D/', type: 'reel' },
+  { id: 2, img: post2, likes: '9.1k', comments: '89', pinned: true, url: 'https://www.instagram.com/p/DOXKz_SjLlI/', type: 'reel' },
+  { id: 3, img: post3, likes: '15.2k', comments: '245', pinned: true, url: 'https://www.instagram.com/p/CzP0ZU7Oxet/', type: 'reel' },
+  { id: 4, img: post4, likes: '8.7k', comments: '112', pinned: false, url: 'https://www.instagram.com/p/DX8FCpuMlOT/', type: 'reel' },
+  { id: 5, img: post5, likes: '11.3k', comments: '96', pinned: false, url: 'https://www.instagram.com/p/DX7Gk3OKy-g/', type: 'reel' },
+  { id: 6, img: post6, likes: '14.7k', comments: '167', pinned: false, url: 'https://www.instagram.com/p/DX2k-daDtXs/?img_index=1', type: 'carousel' },
 ]
 
 const HIGHLIGHTS = [
@@ -279,7 +279,7 @@ function InstagramMini() {
                   </div>
                 )}
                 <div className="absolute top-3 left-3 bg-black/40 backdrop-blur-md p-1 rounded-md">
-                   <Video className="w-4 h-4 text-white" />
+                   {post.type === 'carousel' ? <Copy className="w-4 h-4 text-white" /> : <Video className="w-4 h-4 text-white" />}
                 </div>
               </motion.a>
             </FadeUp>
@@ -366,7 +366,13 @@ function App() {
           >
             <div className="w-full h-full rounded-full bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue p-[4px] shadow-[0_0_50px_rgba(139,92,246,0.3)] group-hover:shadow-[0_0_80px_rgba(139,92,246,0.5)] transition-shadow">
               <div className="w-full h-full rounded-full bg-black p-[3px] overflow-hidden">
-                <img src={profileImg} alt="sarcaone" className="w-full h-full rounded-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <img 
+                  src={profileImg} 
+                  alt="sarcaone" 
+                  fetchPriority="high"
+                  loading="eager"
+                  className="w-full h-full rounded-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                />
               </div>
             </div>
             <div className="absolute -bottom-1 -right-1 bg-black rounded-full p-0.5 group-hover:scale-110 transition-transform">

@@ -225,8 +225,8 @@ function InstagramMini() {
 
               <div
                 id="highlights-scroll"
-                className="flex gap-6 overflow-x-auto no-scrollbar pb-4 px-4 scroll-smooth"
-                style={{ scrollSnapType: 'x mandatory' }}
+                className="flex gap-6 overflow-x-auto no-scrollbar pb-4 pt-3 px-4 scroll-smooth"
+                style={{ scrollSnapType: 'x mandatory', overflowY: 'visible' }}
               >
                 {HIGHLIGHTS.map(h => (
                   <motion.a

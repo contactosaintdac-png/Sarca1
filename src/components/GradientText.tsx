@@ -1,20 +1,17 @@
-import React from 'react'
 import { motion } from 'framer-motion'
 
-interface GradientTextProps {
-  children: React.ReactNode
-  className?: string
-}
-
-const GradientText: React.FC<GradientTextProps> = ({ children, className = '' }) => {
+const GradientText = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => {
   return (
     <motion.span
-      className={`gradient-text animate-gradient inline-block font-black ${className}`}
-      whileHover={{
-        scale: 1.03,
-        filter: 'drop-shadow(0 0 12px rgba(139, 92, 246, 0.5))',
+      className={`relative inline-block bg-gradient-to-r from-brand-red via-brand-purple to-brand-blue bg-[length:200%_auto] bg-clip-text text-transparent font-black ${className}`}
+      animate={{
+        backgroundPosition: ['0% center', '200% center'],
       }}
-      transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+      transition={{
+        duration: 8,
+        repeat: Infinity,
+        ease: 'linear',
+      }}
     >
       {children}
     </motion.span>

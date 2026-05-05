@@ -17,13 +17,14 @@ const CustomCursor = () => {
     }
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement
-      setIsHovering(
-        !!(target.tagName === 'BUTTON' ||
+      const isInteractive = !!(
+        target.tagName === 'BUTTON' ||
         target.tagName === 'A' ||
         target.closest('button') ||
         target.closest('a') ||
-        target.classList.contains('interactive'))
+        target.classList.contains('interactive')
       )
+      setIsHovering(isInteractive)
     }
     window.addEventListener('mousemove', moveCursor)
     window.addEventListener('mouseover', handleMouseOver)
@@ -34,25 +35,25 @@ const CustomCursor = () => {
   }, [])
 
   return (
-    <>
-      {/* Outer ring */}
-      <motion.div
-        style={{ x, y, translateX: '-50%', translateY: '-50%', border: '2px solid white' }}
-        className="fixed top-0 left-0 rounded-full pointer-events-none z-[9999] mix-blend-difference"
-        animate={{
-          width: isHovering ? 48 : 32,
-          height: isHovering ? 48 : 32,
-          borderWidth: isHovering ? 1 : 2,
-          borderColor: 'rgba(255,255,255,1)',
-        }}
-        transition={{ type: 'spring', ...springConfig }}
+    <motion.div
+      className="fixed top-0 left-0 w-8 h-8 rounded-full border border-white/40 pointer-events-none z-[9999] mix-blend-difference flex items-center justify-center"
+      style={{
+        x,
+        y,
+        translateX: '-50%',
+        translateY: '-50%',
+      }}
+      animate={{
+        scale: isHovering ? 2 : 1,
+        borderWidth: isHovering ? '1px' : '2px',
+        opacity: 1
+      }}
+    >
+      <motion.div 
+        className="w-1 h-1 bg-white rounded-full"
+        animate={{ scale: isHovering ? 0 : 1 }}
       />
-      {/* Inner dot */}
-      <motion.div
-        style={{ x, y, translateX: '-50%', translateY: '-50%' }}
-        className="fixed top-0 left-0 w-1 h-1 bg-white rounded-full pointer-events-none z-[9999]"
-      />
-    </>
+    </motion.div>
   )
 }
 

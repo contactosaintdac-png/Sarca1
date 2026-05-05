@@ -1,5 +1,7 @@
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion'
-import { useRef, useState, useEffect } from 'react'
+import { motion, useScroll, useTransform, useInView, AnimatePresence, useSpring as useFramerSpring } from 'framer-motion'
+import { useRef, useState, useEffect, Suspense } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { MeshDistortMaterial, Sphere, Float, MeshTransmissionMaterial } from '@react-three/drei'
 import { 
   MessageCircle, ShoppingBag, Instagram, ChevronDown, Play, Heart, 
   Send, Bookmark, MoreHorizontal, ExternalLink, Users, Zap, Star,
@@ -40,7 +42,6 @@ const PROFILE = {
   whatsapp: 'https://wa.me/5493518080446'
 }
 
-// ─── 3 MAIN LINKS ──────────────────────────────────────────────────────────────
 const LINKS = [
   {
     id: 'collabs',
@@ -82,7 +83,6 @@ const LINKS = [
   },
 ]
 
-// ─── INSTAGRAM POSTS (Functional) ─────────────────────────────────────────────
 const POSTS = [
   { id: 1, img: post1, likes: '12.4k', comments: '142', pinned: true, url: 'https://www.instagram.com/p/DPspMr3jM6D/', type: 'reel' },
   { id: 2, img: post2, likes: '9.1k', comments: '89', pinned: true, url: 'https://www.instagram.com/p/DOXKz_SjLlI/', type: 'reel' },
@@ -107,16 +107,15 @@ function cn(...c: (string | boolean | undefined)[]) {
   return c.filter(Boolean).join(' ')
 }
 
-// ─── FADE UP COMPONENT ─────────────────────────────────────────────────────────
 function FadeUp({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-80px' })
+  const inView = useInView(ref, { once: true, margin: '-100px' })
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 40, rotate: 1 }}
-      animate={inView ? { opacity: 1, y: 0, rotate: 0 } : {}}
-      transition={{ duration: 0.7, delay, type: 'spring', stiffness: 80, damping: 20 }}
+      initial={{ opacity: 0, y: 50, rotateX: 5 }}
+      animate={inView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
+      transition={{ duration: 1, delay, type: 'spring', stiffness: 50 }}
       className={className}
     >
       {children}
@@ -124,223 +123,122 @@ function FadeUp({ children, delay = 0, className = '' }: { children: React.React
   )
 }
 
-// ─── LINK CARD ─────────────────────────────────────────────────────────────────
-function LinkCard({ link, index }: { link: typeof LINKS[0]; index: number }) {
-  const [hovered, setHovered] = useState(false)
-  
+// ─── 3D HERO OBJECT ───────────────────────────────────────────────────────────
+function Hero3D() {
+  const mesh = useRef<any>(null!)
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime()
+    mesh.current.rotation.x = t * 0.2
+    mesh.current.rotation.y = t * 0.3
+    mesh.current.position.y = Math.sin(t * 0.5) * 0.2
+  })
+
   return (
-    <FadeUp delay={index * 0.15}>
-      <motion.a
-        href={link.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        onHoverStart={() => setHovered(true)}
-        onHoverEnd={() => setHovered(false)}
-        whileTap={{ scale: 0.97 }}
-        className={cn(
-          'relative block rounded-3xl p-px cursor-pointer group',
-          link.featured ? 'ring-1 ring-white/20' : ''
-        )}
-        style={{ boxShadow: hovered ? `0 0 60px ${link.glow}` : `0 0 20px ${link.glow}40` }}
-      >
-        <div className={cn('absolute inset-0 bg-gradient-to-br opacity-80 rounded-3xl', link.gradient)} />
-        <div className="relative bg-black/80 backdrop-blur-xl rounded-3xl p-6 md:p-8 m-px overflow-visible">
-          {link.featured && (
-            <div className="absolute -top-3 left-6 bg-gradient-to-r from-brand-purple to-brand-blue text-white text-[10px] font-black px-4 py-1 rounded-full tracking-widest uppercase z-50 shadow-lg">
-              ⭐ Más popular
-            </div>
-          )}
-          <div className="flex items-start gap-5">
-            <div className={cn('w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center text-2xl flex-shrink-0 group-hover:rotate-12 transition-transform', link.gradient)}>
-              {link.emoji}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-black text-lg md:text-xl text-white mb-1">{link.label}</h3>
-              <p className="text-white/50 text-sm mb-3">{link.sublabel}</p>
-              <p className="text-white/70 text-sm leading-relaxed">{link.description}</p>
-            </div>
-          </div>
-          <motion.div animate={{ gap: hovered ? '16px' : '8px' }} className={cn('mt-6 flex items-center justify-between', link.comingSoon ? 'opacity-40 pointer-events-none' : '')}>
-            <span className={cn('font-black text-sm uppercase tracking-widest bg-gradient-to-r bg-clip-text text-transparent', link.gradient)}>
-              {link.cta} →
-            </span>
-            <motion.div animate={{ x: hovered ? 5 : 0 }} className={cn('w-8 h-8 rounded-full bg-gradient-to-br flex items-center justify-center', link.gradient)}>
-              <ExternalLink className="w-4 h-4 text-white" />
-            </motion.div>
-          </motion.div>
-        </div>
-      </motion.a>
-    </FadeUp>
+    <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
+      <mesh ref={mesh} scale={2.2}>
+        <torusKnotGeometry args={[1, 0.3, 128, 32]} />
+        <MeshTransmissionMaterial 
+          backside
+          samples={16}
+          thickness={0.2}
+          roughness={0.1}
+          transmission={1}
+          ior={1.2}
+          chromaticAberration={0.1}
+          anisotropy={0.1}
+          distortion={0.5}
+          distortionScale={0.5}
+          temporalDistortion={0.1}
+          color="#ffffff"
+        />
+      </mesh>
+    </Float>
   )
 }
 
-// ─── INSTAGRAM MINI-FEED ───────────────────────────────────────────────────────
-function InstagramMini() {
-  return (
-    <section className="py-24 md:py-32 relative">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        <FadeUp>
-          <div className="text-center mb-16 px-4">
-            <p className="text-white/40 text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em] mb-4">Explorá mi contenido</p>
-            <h2 className="text-3xl sm:text-5xl font-black mb-6 leading-tight">
-              El universo de <br className="sm:hidden" /> <GradientText>@sarcaone</GradientText>
-            </h2>
-          </div>
-        </FadeUp>
-
-        <FadeUp delay={0.1}>
-          <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 mb-8 shadow-premium border-white/5 overflow-hidden">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8 sm:gap-12">
-              {/* Profile Pic */}
-              <div className="relative w-28 h-28 sm:w-40 sm:h-40 flex-shrink-0">
-                 <div className="w-full h-full rounded-full p-[3px] bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue">
-                  <div className="w-full h-full rounded-full bg-black p-[2px] overflow-hidden">
-                    <img src={profileImg} alt="sarcaone" className="w-full h-full rounded-full object-cover" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Profile Info */}
-              <div className="flex-1 w-full">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-6">
-                  <span className="font-black text-2xl sm:text-3xl tracking-tight text-center sm:text-left">{PROFILE.handle}</span>
-                  <div className="flex gap-2 justify-center sm:justify-start">
-                    <a href={PROFILE.url} target="_blank" className="flex-1 sm:flex-none text-center bg-white text-black px-8 py-2 rounded-xl text-sm font-black hover:bg-white/90 transition-colors">Seguir</a>
-                    <a href="https://www.instagram.com/direct/t/110371723683459/" target="_blank" className="flex-1 sm:flex-none text-center bg-white/10 px-8 py-2 rounded-xl text-sm font-black hover:bg-white/20 transition-colors">Mensaje</a>
-                  </div>
-                </div>
-                
-                {/* Stats */}
-                <div className="flex justify-around sm:justify-start gap-0 sm:gap-12 text-sm sm:text-base mb-8 border-y sm:border-y-0 border-white/5 py-4 sm:py-0">
-                  <div className="text-center sm:text-left"><div className="font-black text-lg">{PROFILE.posts}</div><div className="text-white/40 text-xs uppercase tracking-widest">posts</div></div>
-                  <div className="text-center sm:text-left"><div className="font-black text-lg">{PROFILE.followers}</div><div className="text-white/40 text-xs uppercase tracking-widest">seguidores</div></div>
-                  <div className="text-center sm:text-left"><div className="font-black text-lg">{PROFILE.following}</div><div className="text-white/40 text-xs uppercase tracking-widest">seguidos</div></div>
-                </div>
-
-                {/* Bio */}
-                <div className="space-y-3 text-center sm:text-left">
-                  <p className="text-white/80 text-sm sm:text-lg leading-relaxed font-medium">{PROFILE.bio}</p>
-                  <a href={PROFILE.threadsUrl} target="_blank" className="inline-flex items-center gap-2 text-brand-blue text-sm font-bold hover:underline">
-                    <AtSign className="w-4 h-4" /> threads.net/@sarcaone
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Highlights - Responsive Scroll */}
-            <div className="mt-12 pt-8 border-t border-white/5 flex gap-5 sm:gap-8 overflow-x-auto no-scrollbar pb-4 justify-start sm:justify-center px-2 sm:px-0">
-              {HIGHLIGHTS.map(h => (
-                <motion.a 
-                  key={h.id} 
-                  href={h.url}
-                  target="_blank"
-                  whileHover={{ scale: 1.05 }} 
-                  className="flex flex-col items-center gap-3 cursor-pointer flex-shrink-0 min-w-[70px] sm:min-w-[90px]"
-                >
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/5 p-[2px] ring-2 ring-white/5 hover:ring-brand-purple transition-all">
-                    <div className="w-full h-full rounded-full bg-black p-[2px] overflow-hidden">
-                      <img src={h.img} alt={h.label} className="w-full h-full object-cover rounded-full" />
-                    </div>
-                  </div>
-                  <span className="text-[10px] sm:text-xs text-white/50 font-bold text-center w-full truncate px-1">{h.label}</span>
-                </motion.a>
-              ))}
-            </div>
-          </div>
-        </FadeUp>
-
-        {/* Tab Navigation - Responsive */}
-        <div className="flex justify-center border-t border-white/5 mb-8 overflow-x-auto no-scrollbar">
-          <div className="flex gap-8 sm:gap-16 pt-0">
-            <div className="flex items-center gap-2 text-[10px] sm:text-xs font-black border-t-2 border-white -mt-[2px] py-4 uppercase tracking-[0.2em] cursor-pointer">
-              <Grid className="w-4 h-4" /> <span className="hidden sm:inline">Publicaciones</span> <span className="sm:hidden">Posts</span>
-            </div>
-            <div className="flex items-center gap-2 text-[10px] sm:text-xs font-black text-white/30 py-4 uppercase tracking-[0.2em] cursor-pointer hover:text-white transition-colors">
-              <Video className="w-4 h-4" /> Reels
-            </div>
-            <div className="flex items-center gap-2 text-[10px] sm:text-xs font-black text-white/30 py-4 uppercase tracking-[0.2em] cursor-pointer hover:text-white transition-colors">
-              <User className="w-4 h-4" /> <span className="hidden sm:inline">Etiquetadas</span> <span className="sm:hidden">Tags</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Post Grid - 4:5 Responsive */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 px-1 sm:px-0">
-          {POSTS.map((post, idx) => (
-            <FadeUp key={post.id} delay={idx * 0.05}>
-              <motion.a
-                href={post.url}
-                target="_blank"
-                whileHover={{ scale: 1.02 }}
-                className="relative block aspect-[4/5] rounded-lg sm:rounded-2xl overflow-hidden group cursor-pointer"
-              >
-                <img src={post.img} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
-                
-                {/* Mobile Overlays (Simplified icons) */}
-                <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex flex-col gap-2">
-                  {post.pinned && (
-                    <div className="bg-black/60 backdrop-blur-md p-1.5 rounded-full ring-1 ring-white/20">
-                      <Pin className="w-3 h-3 sm:w-4 sm:h-4 text-white fill-white rotate-45" />
-                    </div>
-                  )}
-                </div>
-                <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-black/40 backdrop-blur-md p-1 rounded-md sm:rounded-lg">
-                   {post.type === 'carousel' ? <Copy className="w-3 h-3 sm:w-4 sm:h-4 text-white" /> : <Video className="w-3 h-3 sm:w-4 sm:h-4 text-white" />}
-                </div>
-
-                {/* Hover Interaction (Desktop Only) */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center gap-6">
-                  <div className="flex items-center gap-2 font-black"><Heart className="w-6 h-6 fill-white" /> {post.likes}</div>
-                  <div className="flex items-center gap-2 font-black"><MessageCircle className="w-6 h-6 fill-white" /> {post.comments}</div>
-                </div>
-              </motion.a>
-            </FadeUp>
-          ))}
-        </div>
-
-        {/* View All Reels Button */}
-        <FadeUp delay={0.3}>
-          <div className="mt-12 sm:mt-20 text-center px-4">
-            <a 
-              href={PROFILE.reelsUrl}
-              target="_blank"
-              className="inline-flex w-full sm:w-auto items-center justify-center gap-4 bg-gradient-to-r from-brand-purple to-brand-blue px-12 py-5 rounded-2xl text-xs sm:text-sm font-black uppercase tracking-[0.2em] hover:shadow-[0_0_40px_rgba(139,92,246,0.5)] transition-all active:scale-95"
-            >
-              <Play className="w-4 h-4 fill-white" /> Ver todos los Reels
-            </a>
-          </div>
-        </FadeUp>
-      </div>
-    </section>
-  )
-}
-
-// ─── FLOATING PARTICLES ────────────────────────────────────────────────────────
+// ─── FLOATING PARTICLES (Elite) ────────────────────────────────────────────────
 function Particles() {
   return (
-    <div className="fixed inset-0 pointer-events-none z-[1]">
-      {[...Array(15)].map((_, i) => (
+    <div className="fixed inset-0 pointer-events-none z-[-5]">
+      {[...Array(40)].map((_, i) => (
         <motion.div
           key={i}
           initial={{ 
             x: Math.random() * 100 + '%', 
             y: Math.random() * 100 + '%',
-            opacity: Math.random() * 0.2 + 0.1,
-            scale: Math.random() * 0.5 + 0.5
+            opacity: Math.random() * 0.3 + 0.1,
+            scale: Math.random() * 0.5 + 0.2
           }}
           animate={{ 
             y: [null, '-10%'],
-            opacity: [0, 0.2, 0]
+            opacity: [0, 0.4, 0]
           }}
           transition={{ 
-            duration: Math.random() * 10 + 15, 
+            duration: Math.random() * 20 + 10, 
             repeat: Infinity, 
             ease: "linear" 
           }}
-          className="absolute w-1 h-1 bg-white rounded-full"
+          className="absolute w-[2px] h-[2px] bg-white rounded-full shadow-[0_0_8px_white]"
         />
       ))}
     </div>
+  )
+}
+
+// ─── LINK CARD (Glassmorphism Math) ───────────────────────────────────────────
+function LinkCard({ link, index }: { link: typeof LINKS[0]; index: number }) {
+  const [hovered, setHovered] = useState(false)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const rotateX = useTransform(y, [-100, 100], [10, -10])
+  const rotateY = useTransform(x, [-100, 100], [-10, 10])
+
+  function handleMouseMove(e: any) {
+    const rect = e.currentTarget.getBoundingClientRect()
+    x.set(e.clientX - rect.left - rect.width / 2)
+    y.set(e.clientY - rect.top - rect.height / 2)
+  }
+
+  return (
+    <FadeUp delay={index * 0.1}>
+      <motion.a
+        href={link.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => { x.set(0); y.set(0); setHovered(false) }}
+        onMouseEnter={() => setHovered(true)}
+        style={{ rotateX, rotateY, perspective: 1000 }}
+        className="relative block rounded-[2.5rem] p-px group"
+      >
+        <div className={cn('absolute inset-0 bg-gradient-to-br opacity-20 rounded-[2.5rem] transition-opacity duration-500', link.gradient, hovered ? 'opacity-40' : '')} />
+        <div className="relative bg-black/40 backdrop-blur-3xl rounded-[2.5rem] p-8 m-px border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5),_inset_0_1px_0_rgba(255,255,255,0.1)] overflow-hidden">
+          {link.featured && (
+            <div className="absolute -top-3 left-10 bg-gradient-to-r from-brand-purple to-brand-blue text-[9px] font-black px-5 py-1 rounded-full tracking-[0.3em] uppercase z-50">
+              ⚡ Destacado
+            </div>
+          )}
+          <div className="flex gap-6 items-center">
+            <div className={cn('w-16 h-16 rounded-3xl bg-gradient-to-br flex items-center justify-center text-3xl shadow-xl', link.gradient)}>
+              {link.emoji}
+            </div>
+            <div className="flex-1">
+              <h3 className="font-black text-2xl text-white tracking-tight">{link.label}</h3>
+              <p className="text-white/40 text-sm font-bold uppercase tracking-widest">{link.sublabel}</p>
+            </div>
+          </div>
+          <p className="mt-6 text-white/60 leading-relaxed text-lg font-light">{link.description}</p>
+          <div className="mt-8 flex items-center justify-between">
+            <span className={cn('font-black text-xs uppercase tracking-[0.3em] bg-gradient-to-r bg-clip-text text-transparent', link.gradient)}>
+              {link.cta}
+            </span>
+            <div className={cn('w-10 h-10 rounded-full flex items-center justify-center text-white bg-gradient-to-br shadow-lg group-hover:scale-110 transition-transform', link.gradient)}>
+              <ExternalLink size={18} />
+            </div>
+          </div>
+        </div>
+      </motion.a>
+    </FadeUp>
   )
 }
 
@@ -360,123 +258,110 @@ function VerifiedBadge({ className }: { className?: string }) {
   )
 }
 
-// ─── APP ───────────────────────────────────────────────────────────────────────
 function App() {
-  const heroRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll()
-  
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
-  const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.9])
-
   return (
-    <div className="min-h-screen relative text-white overflow-x-hidden selection:bg-brand-purple/30">
+    <div className="min-h-screen relative text-white overflow-x-hidden selection:bg-brand-purple/30 font-outfit">
       <FluidBackground />
       <Particles />
       <CustomCursor />
 
-      {/* ── HERO ────────────────────────────────────── */}
-      <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 pt-20">
-        <motion.div style={{ opacity: heroOpacity, scale: heroScale }} className="max-w-3xl mx-auto flex flex-col items-center gap-8">
-          {/* Avatar with dynamic ring */}
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring', damping: 15 }}
-            className="relative w-32 h-32 md:w-48 md:h-48 group cursor-pointer"
-            onClick={() => window.open(PROFILE.url, '_blank')}
-          >
-            <div className="w-full h-full rounded-full bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue p-[4px] shadow-[0_0_50px_rgba(139,92,246,0.3)] group-hover:shadow-[0_0_80px_rgba(139,92,246,0.5)] transition-shadow">
-              <div className="w-full h-full rounded-full bg-black p-[3px] overflow-hidden">
-                <img 
-                  src={profileImg} 
-                  alt="sarcaone" 
-                  fetchPriority="high"
-                  loading="eager"
-                  className="w-full h-full rounded-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                />
+      {/* ── HERO (Impacto Inmersivo) ────────────────── */}
+      <section className="relative min-h-screen flex items-center justify-center pt-20">
+        <div className="absolute inset-0 z-0">
+          <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
+            <Suspense fallback={null}>
+              <ambientLight intensity={0.5} />
+              <pointLight position={[10, 10, 10]} intensity={1} />
+              <Hero3D />
+            </Suspense>
+          </Canvas>
+        </div>
+
+        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+          <FadeUp>
+            <div className="relative w-36 h-36 md:w-52 md:h-52 mx-auto mb-12">
+              <div className="w-full h-full rounded-full p-1.5 bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue shadow-[0_0_60px_rgba(139,92,246,0.4)]">
+                <div className="w-full h-full rounded-full bg-black p-1 overflow-hidden">
+                  <img src={profileImg} alt="Sarca" className="w-full h-full rounded-full object-cover" />
+                </div>
+              </div>
+              <div className="absolute -bottom-1 -right-1 bg-black rounded-full p-0.5">
+                <VerifiedBadge className="w-12 h-12 md:w-16 md:h-16" />
               </div>
             </div>
-            <div className="absolute -bottom-1 -right-1 bg-black rounded-full p-0.5 group-hover:scale-110 transition-transform">
-              <VerifiedBadge className="w-10 h-10 md:w-14 md:h-14" />
+
+            <div className="space-y-6">
+              <h1 className="text-[clamp(3.5rem,10vw,8rem)] font-black leading-[0.9] tracking-tighter">
+                <GradientText>@sarcaone</GradientText>
+              </h1>
+              <p className="text-white/40 text-lg md:text-2xl font-bold uppercase tracking-[0.4em]">Autenticidad y Comunicación</p>
+              <p className="text-white/70 text-xl md:text-3xl font-light italic max-w-3xl mx-auto leading-relaxed">
+                "No te enseña a hablar. Te ayuda a ser vos cuando hablás."
+              </p>
             </div>
-          </motion.div>
-
-          {/* Name & handle */}
-          <div className="space-y-4">
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-brand-purple text-sm font-black tracking-[0.3em] uppercase">Un tipo apasionado</motion.p>
-            <h1 className="text-6xl md:text-8xl font-black tracking-tighter">
-              <GradientText>@sarcaone</GradientText>
-            </h1>
-            <p className="text-white/40 text-lg md:text-2xl font-medium tracking-tight">Autenticidad y Comunicación</p>
-          </div>
-
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} className="text-white/70 text-lg md:text-2xl font-light leading-relaxed max-w-2xl italic">
-            "No te enseña a hablar. Te ayuda a ser vos cuando hablás."
-          </motion.p>
-
-          {/* Scroll CTA */}
-          <motion.div animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="mt-10 flex flex-col items-center gap-3 opacity-30">
-            <span className="text-[10px] uppercase tracking-[0.4em] font-black">Empezá el viaje</span>
-            <ChevronDown className="w-6 h-6" />
-          </motion.div>
-        </motion.div>
+          </FadeUp>
+          
+          <FadeUp delay={0.3}>
+            <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-6">
+              <motion.a 
+                href={PROFILE.whatsapp} 
+                whileHover={{ scale: 1.05 }} 
+                className="w-full sm:w-auto bg-white text-black px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-sm shadow-[0_20px_40px_rgba(255,255,255,0.1)]"
+              >
+                Hablemos por WhatsApp
+              </motion.a>
+              <motion.a 
+                href="#links" 
+                whileHover={{ scale: 1.05 }} 
+                className="w-full sm:w-auto glass px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-sm border-white/10"
+              >
+                Explorar Caminos
+              </motion.a>
+            </div>
+          </FadeUp>
+        </div>
       </section>
 
-      {/* ── ABOUT ───────────────────────────────────── */}
-      <section className="py-32 relative">
-        <div className="max-w-5xl mx-auto px-4 md:px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+      {/* ── ABOUT (Revelación Asimétrica) ────────────── */}
+      <section className="py-32 relative overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-20 items-center">
             <FadeUp>
-              <div className="relative group">
-                <div className="absolute -inset-4 bg-gradient-to-br from-brand-purple/20 to-brand-blue/20 rounded-3xl blur-2xl group-hover:opacity-100 opacity-50 transition-opacity" />
-                <div className="relative glass rounded-3xl p-8 md:p-12 border-white/10 overflow-hidden">
-                   <h2 className="text-4xl md:text-6xl font-black leading-[1.1] mb-8">
-                    <GradientText>No te enseña a hablar.</GradientText><br />
-                    Te ayuda a ser vos cuando hablás.
-                  </h2>
-                  <p className="text-white/70 text-lg md:text-xl leading-relaxed mb-6">
-                    Sarca no te enseña oratoria tradicional. Te entrena para que tu comunicación sea un reflejo exacto de quién sos, sin poses ni libretos.
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    {['Sin fachadas', 'Sin poses', '100% Vos'].map(t => (
-                      <span key={t} className="px-4 py-2 bg-white/5 rounded-full text-xs font-bold text-white/60 ring-1 ring-white/10">{t}</span>
-                    ))}
-                  </div>
+              <div className="relative p-10 glass rounded-[3rem] border-white/10 shadow-premium">
+                <h2 className="text-5xl md:text-7xl font-black leading-tight mb-8">
+                  Habitá tu propia <GradientText>voz.</GradientText>
+                </h2>
+                <p className="text-white/60 text-xl leading-relaxed mb-8 font-light">
+                  Sarca no es oratoria. Es un proceso de <span className="text-white font-bold italic">desbloqueo expresivo</span>. El objetivo no es que hables perfecto, sino que hables como vos.
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                   {['Sin fachadas', 'Sin poses', '100% Vos', 'Impacto Real'].map(t => (
+                      <div key={t} className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/5">
+                        <Star className="w-4 h-4 text-brand-purple" />
+                        <span className="text-sm font-bold text-white/80">{t}</span>
+                      </div>
+                   ))}
                 </div>
               </div>
             </FadeUp>
-
-            <div className="space-y-6">
-              {[
-                { title: 'Entrenamiento Real', text: 'Un proceso de desbloqueo expresivo para que hablar en público o ante cámara sea natural.', icon: Star },
-                { title: 'Comunidad Exclusiva', text: 'Acceso a un círculo de personas que buscan la misma claridad y autenticidad.', icon: Users },
-                { title: 'Recursos Directos', text: 'Herramientas prácticas para aplicar hoy mismo en tu comunicación.', icon: Zap }
-              ].map((item, i) => (
-                <FadeUp key={item.title} delay={i * 0.1}>
-                  <div className="flex gap-6 p-6 rounded-2xl hover:bg-white/5 transition-colors group">
-                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                      <item.icon className="w-6 h-6 text-brand-purple" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-lg mb-1">{item.title}</h4>
-                      <p className="text-white/50 text-sm leading-relaxed">{item.text}</p>
-                    </div>
-                  </div>
-                </FadeUp>
-              ))}
-            </div>
+            <FadeUp delay={0.2}>
+               <div className="relative group">
+                 <div className="absolute inset-0 bg-gradient-to-tr from-brand-purple to-brand-blue opacity-20 blur-3xl rounded-[3rem]" />
+                 <img src={post1} alt="Sarca One" className="relative rounded-[3rem] grayscale hover:grayscale-0 transition-all duration-700 shadow-2xl ring-1 ring-white/10" />
+               </div>
+            </FadeUp>
           </div>
         </div>
       </section>
 
       {/* ── LINKS ───────────────────────────────────── */}
-      <section className="py-32 relative bg-gradient-to-b from-transparent via-brand-purple/5 to-transparent">
-        <div className="max-w-2xl mx-auto px-4 md:px-6">
-          <FadeUp className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-black mb-4">Elegí tu <GradientText>camino</GradientText></h2>
-            <p className="text-white/40 text-lg">El primer paso para una comunicación más real.</p>
+      <section id="links" className="py-32 relative">
+        <div className="max-w-3xl mx-auto px-6">
+          <FadeUp className="text-center mb-20">
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-4">Elegí tu <GradientText>camino</GradientText></h2>
+            <p className="text-white/40 text-xl font-light">Acceso directo a mis herramientas y programas.</p>
           </FadeUp>
-          <div className="space-y-6">
+          <div className="space-y-8">
             {LINKS.map((link, i) => (
               <LinkCard key={link.id} link={link} index={i} />
             ))}
@@ -484,35 +369,88 @@ function App() {
         </div>
       </section>
 
-      {/* ── INSTAGRAM MINI-FEED ─────────────────────── */}
-      <InstagramMini />
+      {/* ── INSTAGRAM MINI (Simulación de App) ───────── */}
+      <section className="py-32">
+        <div className="max-w-4xl mx-auto px-6">
+          <FadeUp className="text-center mb-16">
+             <p className="text-brand-blue text-xs font-black uppercase tracking-[0.5em] mb-4">Simulación Digital</p>
+             <h2 className="text-4xl md:text-6xl font-black">Instagram <GradientText>Experience</GradientText></h2>
+          </FadeUp>
 
-      {/* ── FOOTER ──────────────────────────────────── */}
-      <footer className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-purple/20 to-transparent opacity-30" />
-        <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
-          <FadeUp>
-            <div className="flex flex-col items-center gap-8">
-              <div className="space-y-4 flex flex-col items-center">
-                <div className="flex gap-4 mb-2">
-                  <a href={PROFILE.url} target="_blank" className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center hover:scale-110 transition-transform hover:bg-white/10">
-                    <Instagram className="w-8 h-8" />
-                  </a>
-                  <a href={PROFILE.whatsapp} target="_blank" className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center hover:scale-110 transition-transform hover:bg-white/10">
-                    <Phone className="w-8 h-8" />
-                  </a>
-                </div>
-                <h3 className="text-4xl font-black tracking-tight"><GradientText>@sarcaone</GradientText></h3>
-                <p className="text-white/40 font-bold uppercase tracking-[0.3em] text-xs">Comunicación Auténtica</p>
-              </div>
+          <FadeUp delay={0.1}>
+            <div className="glass rounded-[3rem] p-8 md:p-12 border-white/10 shadow-premium overflow-hidden">
+               {/* IG Header Sim */}
+               <div className="flex flex-col sm:flex-row items-center gap-10 mb-12">
+                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-full p-1 bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue">
+                    <img src={profileImg} className="w-full h-full rounded-full object-cover border-4 border-black" />
+                  </div>
+                  <div className="flex-1 text-center sm:text-left">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-6 mb-6">
+                      <span className="text-3xl font-black">{PROFILE.handle}</span>
+                      <div className="flex gap-2">
+                         <a href={PROFILE.url} className="bg-white text-black px-8 py-2 rounded-xl text-sm font-black">Seguir</a>
+                         <a href={PROFILE.whatsapp} className="bg-white/10 px-8 py-2 rounded-xl text-sm font-black">Mensaje</a>
+                      </div>
+                    </div>
+                    <div className="flex justify-around sm:justify-start gap-12 text-center sm:text-left mb-6">
+                       <div><div className="text-xl font-black">{PROFILE.posts}</div><div className="text-xs text-white/40 font-bold uppercase">posts</div></div>
+                       <div><div className="text-xl font-black">{PROFILE.followers}</div><div className="text-xs text-white/40 font-bold uppercase">seguidores</div></div>
+                       <div><div className="text-xl font-black">{PROFILE.following}</div><div className="text-xs text-white/40 font-bold uppercase">seguidos</div></div>
+                    </div>
+                    <p className="text-white/70 text-lg leading-relaxed">{PROFILE.bio}</p>
+                  </div>
+               </div>
 
-              <div className="flex gap-10 text-white/30 text-sm font-bold uppercase tracking-widest mt-6">
-                <a href={PROFILE.url} target="_blank" className="hover:text-white transition-colors">Instagram</a>
-                <a href={PROFILE.threadsUrl} target="_blank" className="hover:text-white transition-colors">Threads</a>
-              </div>
-              <p className="text-white/10 text-[10px] mt-10">© 2026 Sarca One · Crafted for Authenticity</p>
+               {/* Highlights Scroll */}
+               <div className="flex gap-8 overflow-x-auto no-scrollbar pb-6 border-t border-white/5 pt-10">
+                  {HIGHLIGHTS.map(h => (
+                    <a key={h.id} href={h.url} className="flex flex-col items-center gap-3 flex-shrink-0">
+                       <div className="w-20 h-20 rounded-full p-0.5 bg-white/10 ring-2 ring-white/5 hover:ring-brand-purple transition-all">
+                          <img src={h.img} className="w-full h-full rounded-full object-cover border-4 border-black" />
+                       </div>
+                       <span className="text-[10px] font-black uppercase text-white/40">{h.label}</span>
+                    </a>
+                  ))}
+               </div>
+
+               {/* Tabs */}
+               <div className="flex justify-center border-t border-white/5 mt-10">
+                  <div className="flex gap-16">
+                     <div className="flex items-center gap-2 py-4 border-t-2 border-white text-xs font-black uppercase tracking-widest"><Grid size={14}/> Posts</div>
+                     <div className="flex items-center gap-2 py-4 text-white/30 text-xs font-black uppercase tracking-widest hover:text-white transition-colors"><Video size={14}/> Reels</div>
+                     <div className="flex items-center gap-2 py-4 text-white/30 text-xs font-black uppercase tracking-widest hover:text-white transition-colors"><User size={14}/> Tags</div>
+                  </div>
+               </div>
+
+               {/* Grid */}
+               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-8">
+                  {POSTS.map(post => (
+                    <motion.a href={post.url} key={post.id} whileHover={{ scale: 1.02 }} className="aspect-[4/5] rounded-3xl overflow-hidden relative group">
+                       <img src={post.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+                       <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md p-2 rounded-xl">
+                          {post.type === 'carousel' ? <Copy size={16}/> : <Video size={16}/>}
+                       </div>
+                       {post.pinned && <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md p-2 rounded-xl"><Pin size={16} fill="white" className="rotate-45" /></div>}
+                    </motion.a>
+                  ))}
+               </div>
             </div>
           </FadeUp>
+        </div>
+      </section>
+
+      {/* ── FOOTER ──────────────────────────────────── */}
+      <footer className="py-32 relative">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+           <FadeUp>
+              <h3 className="text-[5vw] font-black tracking-tighter mb-12"><GradientText>@sarcaone</GradientText></h3>
+              <div className="flex justify-center gap-10 text-white/40 text-xs font-black uppercase tracking-[0.5em] mb-20">
+                 <a href={PROFILE.url} className="hover:text-white transition-colors">Instagram</a>
+                 <a href={PROFILE.threadsUrl} className="hover:text-white transition-colors">Threads</a>
+                 <a href={PROFILE.whatsapp} className="hover:text-white transition-colors">WhatsApp</a>
+              </div>
+              <p className="text-[10px] text-white/10 uppercase tracking-[1em]">Created for Authenticity · 2026</p>
+           </FadeUp>
         </div>
       </footer>
     </div>

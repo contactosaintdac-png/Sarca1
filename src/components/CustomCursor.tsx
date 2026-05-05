@@ -37,7 +37,7 @@ const CustomCursor = () => {
     <>
       {/* Outer ring */}
       <motion.div
-        style={{ x, y, translateX: '-50%', translateY: '-50%' }}
+        style={{ x, y, translateX: '-50%', translateY: '-50%', border: '2px solid white' }}
         className="fixed top-0 left-0 rounded-full pointer-events-none z-[9999] mix-blend-difference"
         animate={{
           width: isHovering ? 48 : 32,
@@ -45,7 +45,6 @@ const CustomCursor = () => {
           borderWidth: isHovering ? 1 : 2,
           borderColor: 'rgba(255,255,255,1)',
         }}
-        style={{ x, y, translateX: '-50%', translateY: '-50%', border: '2px solid white' }}
         transition={{ type: 'spring', ...springConfig }}
       />
       {/* Inner dot */}

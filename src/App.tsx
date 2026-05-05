@@ -183,7 +183,7 @@ function InstagramMini() {
         </FadeUp>
 
         <FadeUp delay={0.1}>
-          <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 mb-8 shadow-premium border-white/5 overflow-hidden">
+          <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 mb-8 shadow-premium border-white/5">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8 sm:gap-12">
               <div className="relative w-28 h-28 sm:w-40 sm:h-40 flex-shrink-0">
                  <div className="w-full h-full rounded-full p-[3px] bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue">

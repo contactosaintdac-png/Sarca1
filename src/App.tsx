@@ -1,0 +1,497 @@
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion'
+import { useRef, useState, useEffect } from 'react'
+import { 
+  MessageCircle, ShoppingBag, Instagram, ChevronDown, Play, Heart, 
+  Send, Bookmark, MoreHorizontal, ExternalLink, Users, Zap, Star,
+  Pin, Grid, Video, User, Phone
+} from 'lucide-react'
+import FluidBackground from './components/FluidBackground'
+import CustomCursor from './components/CustomCursor'
+import GradientText from './components/GradientText'
+
+// ─── ASSET IMPORTS ─────────────────────────────────────────────────────────────
+import profileImg from '../assets/instagram/profile.jpg'
+import hHearts from '../assets/instagram/h-hearts.jpg'
+import hReels from '../assets/instagram/h-reels.jpg'
+import hYo from '../assets/instagram/h-yo.jpg'
+import hBuenosDias from '../assets/instagram/h-buenosdias.jpg'
+import hDonaciones from '../assets/instagram/h-donaciones.jpg'
+import h111 from '../assets/instagram/h-111.jpg'
+import hPalomo from '../assets/instagram/h-palomo.jpg'
+import post1 from '../assets/instagram/post1.jpg'
+import post2 from '../assets/instagram/post2.jpg'
+import post3 from '../assets/instagram/post3.jpg'
+import post4 from '../assets/instagram/post4.jpg'
+import post5 from '../assets/instagram/post5.jpg'
+import post6 from '../assets/instagram/post6.jpg'
+
+// ─── BRAND DATA ────────────────────────────────────────────────────────────────
+const PROFILE = {
+  handle: 'sarcaone',
+  name: 'Sarca One',
+  tagline: 'Autenticidad y Comunicación',
+  bio: 'Un tipo apasionado · Ayudo a las personas a comunicarse con autenticidad · Entrenamiento mensual de Abril 👇',
+  followers: '276K',
+  following: '2,509',
+  posts: '292',
+  url: 'https://www.instagram.com/sarcaone/',
+  reelsUrl: 'https://www.instagram.com/sarcaone/reels/',
+  threadsUrl: 'https://www.threads.com/@sarcaone?xmt=AQF0Ii68ayfem44v8mRenZcARVTaujHoK3JE_P0OCL_hjn0',
+  whatsapp: 'https://wa.me/5493518080446'
+}
+
+// ─── 3 MAIN LINKS ──────────────────────────────────────────────────────────────
+const LINKS = [
+  {
+    id: 'collabs',
+    icon: Zap,
+    label: 'Canjes y Colaboraciones',
+    sublabel: 'Trabajemos juntos en algo grande',
+    description: '¿Tenés una marca, producto o proyecto? Hablemos de cómo podemos colaborar y generar algo auténtico.',
+    cta: 'Quiero colaborar',
+    href: 'https://api.whatsapp.com/send?phone=5493518080446&text=Hola!%20Quiero%20colaborar%20con%20vos',
+    gradient: 'from-brand-red to-brand-pink',
+    glow: 'rgba(239, 68, 68, 0.3)',
+    emoji: '⚡',
+  },
+  {
+    id: 'escuela',
+    icon: Users,
+    label: 'Entrenamiento de Abril',
+    sublabel: 'El programa mensual de comunicación',
+    description: 'El espacio donde entrenamos la autenticidad. Un método, una comunidad, una transformación real en cómo te expresás.',
+    cta: 'Quiero unirme',
+    href: 'https://api.whatsapp.com/send?phone=5493518080446&text=Hola!%20Quiero%20unirme%20a%20tu%20escuela!%20',
+    gradient: 'from-brand-purple to-brand-blue',
+    glow: 'rgba(139, 92, 246, 0.3)',
+    emoji: '🔥',
+    featured: true,
+  },
+  {
+    id: 'tienda',
+    icon: ShoppingBag,
+    label: 'Tienda de Recursos',
+    sublabel: 'Clases y recursos digitales',
+    description: 'Próximamente: recursos, clases y materiales para que puedas avanzar a tu ritmo.',
+    cta: 'Ver tienda',
+    href: 'https://sarcaone.empretienda.com.ar/',
+    gradient: 'from-brand-blue to-brand-purple',
+    glow: 'rgba(59, 130, 246, 0.3)',
+    emoji: '🎒',
+    comingSoon: true,
+  },
+]
+
+// ─── INSTAGRAM POSTS (Functional) ─────────────────────────────────────────────
+const POSTS = [
+  { id: 1, img: post1, likes: '12.4k', comments: '142', pinned: true, url: 'https://www.instagram.com/p/DPspMr3jM6D/' },
+  { id: 2, img: post2, likes: '9.1k', comments: '89', pinned: true, url: 'https://www.instagram.com/p/DOXKz_SjLlI/' },
+  { id: 3, img: post3, likes: '15.2k', comments: '245', pinned: true, url: 'https://www.instagram.com/p/CzP0ZU7Oxet/' },
+  { id: 4, img: post4, likes: '8.7k', comments: '112', pinned: false, url: 'https://www.instagram.com/p/DX8FCpuMlOT/' },
+  { id: 5, img: post5, likes: '11.3k', comments: '96', pinned: false, url: 'https://www.instagram.com/p/DX7Gk3OKy-g/' },
+  { id: 6, img: post6, likes: '14.7k', comments: '167', pinned: false, url: 'https://www.instagram.com/p/DX2k-daDtXs/?img_index=1' },
+]
+
+const HIGHLIGHTS = [
+  { id: 1, label: '💜💕', img: hHearts, url: 'https://www.instagram.com/stories/highlights/18152507962430403/' },
+  { id: 2, label: 'Debió ser Reel', img: hReels, url: 'https://www.instagram.com/stories/highlights/17904172920036682/' },
+  { id: 3, label: 'Yo', img: hYo, url: 'https://www.instagram.com/stories/highlights/18021969302319047/' },
+  { id: 4, label: 'Buenos Días', img: hBuenosDias, url: 'https://www.instagram.com/stories/highlights/18008823919707058/' },
+  { id: 5, label: 'Donaciones', img: hDonaciones, url: 'https://www.instagram.com/stories/highlights/18038379844574256/' },
+  { id: 6, label: '111', img: h111, url: 'https://www.instagram.com/stories/highlights/18135615013272857/' },
+  { id: 7, label: 'Luis el Palomo', img: hPalomo, url: 'https://www.instagram.com/stories/highlights/17874690443447565/' },
+]
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function cn(...c: (string | boolean | undefined)[]) {
+  return c.filter(Boolean).join(' ')
+}
+
+// ─── FADE UP COMPONENT ─────────────────────────────────────────────────────────
+function FadeUp({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: '-80px' })
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 40, rotate: 1 }}
+      animate={inView ? { opacity: 1, y: 0, rotate: 0 } : {}}
+      transition={{ duration: 0.7, delay, type: 'spring', stiffness: 80, damping: 20 }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+// ─── LINK CARD ─────────────────────────────────────────────────────────────────
+function LinkCard({ link, index }: { link: typeof LINKS[0]; index: number }) {
+  const [hovered, setHovered] = useState(false)
+  
+  return (
+    <FadeUp delay={index * 0.15}>
+      <motion.a
+        href={link.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        onHoverStart={() => setHovered(true)}
+        onHoverEnd={() => setHovered(false)}
+        whileTap={{ scale: 0.97 }}
+        className={cn(
+          'relative block rounded-3xl p-px cursor-pointer group',
+          link.featured ? 'ring-1 ring-white/20' : ''
+        )}
+        style={{ boxShadow: hovered ? `0 0 60px ${link.glow}` : `0 0 20px ${link.glow}40` }}
+      >
+        <div className={cn('absolute inset-0 bg-gradient-to-br opacity-80 rounded-3xl', link.gradient)} />
+        <div className="relative bg-black/80 backdrop-blur-xl rounded-3xl p-6 md:p-8 m-px overflow-visible">
+          {link.featured && (
+            <div className="absolute -top-3 left-6 bg-gradient-to-r from-brand-purple to-brand-blue text-white text-[10px] font-black px-4 py-1 rounded-full tracking-widest uppercase z-50 shadow-lg">
+              ⭐ Más popular
+            </div>
+          )}
+          <div className="flex items-start gap-5">
+            <div className={cn('w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center text-2xl flex-shrink-0 group-hover:rotate-12 transition-transform', link.gradient)}>
+              {link.emoji}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-black text-lg md:text-xl text-white mb-1">{link.label}</h3>
+              <p className="text-white/50 text-sm mb-3">{link.sublabel}</p>
+              <p className="text-white/70 text-sm leading-relaxed">{link.description}</p>
+            </div>
+          </div>
+          <motion.div animate={{ gap: hovered ? '16px' : '8px' }} className={cn('mt-6 flex items-center justify-between', link.comingSoon ? 'opacity-40 pointer-events-none' : '')}>
+            <span className={cn('font-black text-sm uppercase tracking-widest bg-gradient-to-r bg-clip-text text-transparent', link.gradient)}>
+              {link.cta} →
+            </span>
+            <motion.div animate={{ x: hovered ? 5 : 0 }} className={cn('w-8 h-8 rounded-full bg-gradient-to-br flex items-center justify-center', link.gradient)}>
+              <ExternalLink className="w-4 h-4 text-white" />
+            </motion.div>
+          </motion.div>
+        </div>
+      </motion.a>
+    </FadeUp>
+  )
+}
+
+// ─── INSTAGRAM MINI-FEED ───────────────────────────────────────────────────────
+function InstagramMini() {
+  const [likedPosts, setLikedPosts] = useState<number[]>([])
+  const toggleLike = (id: number) => setLikedPosts(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id])
+
+  return (
+    <section className="py-24 md:py-32 relative">
+      <div className="max-w-5xl mx-auto px-4 md:px-6">
+        <FadeUp>
+          <div className="text-center mb-16">
+            <p className="text-white/40 text-sm font-bold uppercase tracking-widest mb-4">Explorá mi contenido</p>
+            <h2 className="text-3xl md:text-5xl font-black mb-6">
+              El universo de <GradientText>@sarcaone</GradientText>
+            </h2>
+          </div>
+        </FadeUp>
+
+        <FadeUp delay={0.1}>
+          <div className="glass rounded-3xl p-6 md:p-8 mb-8 shadow-premium">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
+              <div className="w-24 h-24 md:w-32 md:h-32 rounded-full p-[3px] bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue flex-shrink-0">
+                <div className="w-full h-full rounded-full bg-black p-[2px] overflow-hidden">
+                  <img src={profileImg} alt="sarcaone" className="w-full h-full rounded-full object-cover" />
+                </div>
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
+                  <span className="font-black text-2xl tracking-tight">{PROFILE.handle}</span>
+                  <div className="flex gap-2">
+                    <a href={PROFILE.url} target="_blank" className="bg-white text-black px-6 py-1.5 rounded-lg text-sm font-bold hover:bg-white/90 transition-colors">Seguir</a>
+                    <a href="https://www.instagram.com/direct/t/110371723683459/" target="_blank" className="bg-white/10 px-6 py-1.5 rounded-lg text-sm font-bold hover:bg-white/20 transition-colors">Mensaje</a>
+                  </div>
+                </div>
+                <div className="flex justify-center sm:justify-start gap-8 text-base mb-4">
+                  <div><span className="font-bold">{PROFILE.posts}</span> <span className="text-white/50">posts</span></div>
+                  <div><span className="font-bold">{PROFILE.followers}</span> <span className="text-white/50">seguidores</span></div>
+                  <div><span className="font-bold">{PROFILE.following}</span> <span className="text-white/50">seguidos</span></div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-white/80 text-sm md:text-base max-w-lg leading-relaxed whitespace-pre-line">{PROFILE.bio}</p>
+                  <a href={PROFILE.threadsUrl} target="_blank" className="inline-flex items-center gap-1.5 text-brand-blue text-sm font-bold hover:underline">
+                    <AtSign className="w-3.5 h-3.5" /> threads.com/@sarcaone
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Highlights - Centered */}
+            <div className="mt-10 pt-8 border-t border-white/5 flex gap-6 overflow-x-auto no-scrollbar pb-2 justify-center">
+              {HIGHLIGHTS.map(h => (
+                <motion.a 
+                  key={h.id} 
+                  href={h.url}
+                  target="_blank"
+                  whileHover={{ scale: 1.05 }} 
+                  className="flex flex-col items-center gap-3 cursor-pointer flex-shrink-0"
+                >
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 p-[2.5px] hover:bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue transition-colors">
+                    <div className="w-full h-full rounded-full bg-black p-[2px] overflow-hidden">
+                      <img src={h.img} alt={h.label} className="w-full h-full object-cover rounded-full" />
+                    </div>
+                  </div>
+                  <span className="text-[10px] md:text-xs text-white/70 font-bold text-center w-16 md:w-20 truncate">{h.label}</span>
+                </motion.a>
+              ))}
+            </div>
+          </div>
+        </FadeUp>
+
+        {/* Tab Navigation */}
+        <div className="flex justify-center border-t border-white/10 mb-8">
+          <div className="flex gap-12 pt-4">
+            <div className="flex items-center gap-2 text-xs font-bold border-t border-white -mt-4.5 pt-4 uppercase tracking-widest cursor-pointer">
+              <Grid className="w-4 h-4" /> Publicaciones
+            </div>
+            <div className="flex items-center gap-2 text-xs font-bold text-white/40 uppercase tracking-widest cursor-pointer hover:text-white transition-colors">
+              <Video className="w-4 h-4" /> Reels
+            </div>
+            <div className="flex items-center gap-2 text-xs font-bold text-white/40 uppercase tracking-widest cursor-pointer hover:text-white transition-colors">
+              <User className="w-4 h-4" /> Etiquetadas
+            </div>
+          </div>
+        </div>
+
+        {/* Post Grid - 4:5 Aspect Ratio */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
+          {POSTS.map((post, idx) => (
+            <FadeUp key={post.id} delay={idx * 0.05}>
+              <motion.a
+                href={post.url}
+                target="_blank"
+                whileHover={{ scale: 1.02 }}
+                className="relative block aspect-[4/5] rounded-xl overflow-hidden group cursor-pointer"
+              >
+                <img src={post.img} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6">
+                  <div className="flex items-center gap-2 font-bold"><Heart className="w-6 h-6 fill-white" /> {post.likes}</div>
+                  <div className="flex items-center gap-2 font-bold"><MessageCircle className="w-6 h-6 fill-white" /> {post.comments}</div>
+                </div>
+                {post.pinned && (
+                  <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md p-1.5 rounded-full ring-1 ring-white/20">
+                    <Pin className="w-4 h-4 text-white fill-white rotate-45" />
+                  </div>
+                )}
+                <div className="absolute top-3 left-3 bg-black/40 backdrop-blur-md p-1 rounded-md">
+                   <Video className="w-4 h-4 text-white" />
+                </div>
+              </motion.a>
+            </FadeUp>
+          ))}
+        </div>
+
+        {/* View All Reels Button */}
+        <FadeUp delay={0.3}>
+          <div className="mt-16 text-center">
+            <a 
+              href={PROFILE.reelsUrl}
+              target="_blank"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-brand-purple to-brand-blue px-10 py-4 rounded-full text-sm font-black uppercase tracking-widest hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] transition-all active:scale-95"
+            >
+              <Play className="w-4 h-4 fill-white" /> Ver todos los Reels
+            </a>
+          </div>
+        </FadeUp>
+      </div>
+    </section>
+  )
+}
+
+// ─── FLOATING PARTICLES ────────────────────────────────────────────────────────
+function Particles() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0">
+      {[...Array(20)].map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ 
+            x: Math.random() * window.innerWidth, 
+            y: Math.random() * window.innerHeight,
+            opacity: Math.random() * 0.3 + 0.1,
+            scale: Math.random() * 0.5 + 0.5
+          }}
+          animate={{ 
+            y: [null, Math.random() * -100 - 50],
+            x: [null, (Math.random() - 0.5) * 50]
+          }}
+          transition={{ 
+            duration: Math.random() * 10 + 10, 
+            repeat: Infinity, 
+            ease: "linear" 
+          }}
+          className="absolute w-1 h-1 bg-white rounded-full"
+        />
+      ))}
+    </div>
+  )
+}
+
+// ─── AT SIGN ICON FOR THREADS ──────────────────────────────────────────────────
+function AtSign({ className }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg>
+  )
+}
+
+// ─── APP ───────────────────────────────────────────────────────────────────────
+function App() {
+  const heroRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll()
+  
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.9])
+
+  return (
+    <div className="min-h-screen relative text-white overflow-x-hidden selection:bg-brand-purple/30 bg-black">
+      <FluidBackground />
+      <Particles />
+      <CustomCursor />
+
+      {/* ── HERO ────────────────────────────────────── */}
+      <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 pt-20">
+        <motion.div style={{ opacity: heroOpacity, scale: heroScale }} className="max-w-3xl mx-auto flex flex-col items-center gap-8">
+          {/* Avatar with dynamic ring */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', damping: 15 }}
+            className="relative w-32 h-32 md:w-48 md:h-48 group cursor-pointer"
+            onClick={() => window.open(PROFILE.url, '_blank')}
+          >
+            <div className="w-full h-full rounded-full bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue p-[4px] shadow-[0_0_50px_rgba(139,92,246,0.3)] group-hover:shadow-[0_0_80px_rgba(139,92,246,0.5)] transition-shadow">
+              <div className="w-full h-full rounded-full bg-black p-[3px] overflow-hidden">
+                <img src={profileImg} alt="sarcaone" className="w-full h-full rounded-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              </div>
+            </div>
+            <div className="absolute -bottom-1 -right-1 bg-black rounded-full p-0.5 group-hover:scale-110 transition-transform">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10 md:w-14 md:h-14 text-[#0095f6]">
+                <path d="M12 2c-.176 0-.351.002-.525.006a1 1 0 0 0-.756.406l-1.5 2a1 1 0 0 1-.8.4h-2.5a1 1 0 0 0-1 1v2.5a1 1 0 0 1-.4.8l-2 1.5a1 1 0 0 0-.406.756c-.004.174-.006.349-.006.525s.002.351.006.525a1 1 0 0 0 .406.756l2 1.5a1 1 0 0 1 .4.8v2.5a1 1 0 0 0 1 1h2.5a1 1 0 0 1 .8.4l1.5 2a1 1 0 0 0 .756.406c.174.004.349.006.525.006s.351-.002.525-.006a1 1 0 0 0 .756-.406l1.5-2a1 1 0 0 1 .8-.4h2.5a1 1 0 0 0 1-1v-2.5a1 1 0 0 1 .4-.8l2-1.5a1 1 0 0 0 .406-.756c.004-.174.006-.349.006-.525s-.002-.351-.006-.525a1 1 0 0 0-.406-.756l-2-1.5a1 1 0 0 1-.4-.8V5.912a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-1.5-2A1 1 0 0 0 12.525 2.006C12.351 2.002 12.176 2 12 2zm4.707 9.293-5.5 5.5a1 1 0 0 1-1.414 0l-2.5-2.5a1 1 0 1 1 1.414-1.414L10.5 14.586l4.793-4.793a1 1 0 0 1 1.414 1.414z" />
+              </svg>
+            </div>
+          </motion.div>
+
+          {/* Name & handle */}
+          <div className="space-y-4">
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-brand-purple text-sm font-black tracking-[0.3em] uppercase">Un tipo apasionado</motion.p>
+            <h1 className="text-6xl md:text-8xl font-black tracking-tighter">
+              <GradientText>@sarcaone</GradientText>
+            </h1>
+            <p className="text-white/40 text-lg md:text-2xl font-medium tracking-tight">Autenticidad y Comunicación</p>
+          </div>
+
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} className="text-white/70 text-lg md:text-2xl font-light leading-relaxed max-w-2xl italic">
+            "No te enseña a hablar. Te ayuda a ser vos cuando hablás."
+          </motion.p>
+
+          {/* Scroll CTA */}
+          <motion.div animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="mt-10 flex flex-col items-center gap-3 opacity-30">
+            <span className="text-[10px] uppercase tracking-[0.4em] font-black">Empezá el viaje</span>
+            <ChevronDown className="w-6 h-6" />
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* ── ABOUT ───────────────────────────────────── */}
+      <section className="py-32 relative">
+        <div className="max-w-5xl mx-auto px-4 md:px-6">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <FadeUp>
+              <div className="relative group">
+                <div className="absolute -inset-4 bg-gradient-to-br from-brand-purple/20 to-brand-blue/20 rounded-3xl blur-2xl group-hover:opacity-100 opacity-50 transition-opacity" />
+                <div className="relative glass rounded-3xl p-8 md:p-12 border-white/10 overflow-hidden">
+                   <h2 className="text-4xl md:text-6xl font-black leading-[1.1] mb-8">
+                    <GradientText>No te enseña a hablar.</GradientText><br />
+                    Te ayuda a ser vos cuando hablás.
+                  </h2>
+                  <p className="text-white/70 text-lg md:text-xl leading-relaxed mb-6">
+                    Sarca no te enseña oratoria tradicional. Te entrena para que tu comunicación sea un reflejo exacto de quién sos, sin poses ni libretos.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {['Sin fachadas', 'Sin poses', '100% Vos'].map(t => (
+                      <span key={t} className="px-4 py-2 bg-white/5 rounded-full text-xs font-bold text-white/60 ring-1 ring-white/10">{t}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </FadeUp>
+
+            <div className="space-y-6">
+              {[
+                { title: 'Entrenamiento Real', text: 'Un proceso de desbloqueo expresivo para que hablar en público o ante cámara sea natural.', icon: Star },
+                { title: 'Comunidad Exclusiva', text: 'Acceso a un círculo de personas que buscan la misma claridad y autenticidad.', icon: Users },
+                { title: 'Recursos Directos', text: 'Herramientas prácticas para aplicar hoy mismo en tu comunicación.', icon: Zap }
+              ].map((item, i) => (
+                <FadeUp key={item.title} delay={i * 0.1}>
+                  <div className="flex gap-6 p-6 rounded-2xl hover:bg-white/5 transition-colors group">
+                    <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <item.icon className="w-6 h-6 text-brand-purple" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg mb-1">{item.title}</h4>
+                      <p className="text-white/50 text-sm leading-relaxed">{item.text}</p>
+                    </div>
+                  </div>
+                </FadeUp>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── LINKS ───────────────────────────────────── */}
+      <section className="py-32 relative bg-gradient-to-b from-transparent via-brand-purple/5 to-transparent">
+        <div className="max-w-2xl mx-auto px-4 md:px-6">
+          <FadeUp className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-black mb-4">Elegí tu <GradientText>camino</GradientText></h2>
+            <p className="text-white/40 text-lg">El primer paso para una comunicación más real.</p>
+          </FadeUp>
+          <div className="space-y-6">
+            {LINKS.map((link, i) => (
+              <LinkCard key={link.id} link={link} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── INSTAGRAM MINI-FEED ─────────────────────── */}
+      <InstagramMini />
+
+      {/* ── FOOTER ──────────────────────────────────── */}
+      <footer className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-purple/20 to-transparent opacity-30" />
+        <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
+          <FadeUp>
+            <div className="flex flex-col items-center gap-8">
+              <div className="space-y-4 flex flex-col items-center">
+                <div className="flex gap-4 mb-2">
+                  <a href={PROFILE.url} target="_blank" className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center hover:scale-110 transition-transform hover:bg-white/10">
+                    <Instagram className="w-8 h-8" />
+                  </a>
+                  <a href={PROFILE.whatsapp} target="_blank" className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center hover:scale-110 transition-transform hover:bg-white/10">
+                    <Phone className="w-8 h-8" />
+                  </a>
+                </div>
+                <h3 className="text-4xl font-black tracking-tight"><GradientText>@sarcaone</GradientText></h3>
+                <p className="text-white/40 font-bold uppercase tracking-[0.3em] text-xs">Comunicación Auténtica</p>
+              </div>
+
+              <div className="flex gap-10 text-white/30 text-sm font-bold uppercase tracking-widest mt-6">
+                <a href={PROFILE.url} target="_blank" className="hover:text-white transition-colors">Instagram</a>
+                <a href={PROFILE.threadsUrl} target="_blank" className="hover:text-white transition-colors">Threads</a>
+              </div>
+              <p className="text-white/10 text-[10px] mt-10">© 2026 Sarca One · Crafted for Authenticity</p>
+            </div>
+          </FadeUp>
+        </div>
+      </footer>
+    </div>
+  )
+}
+
+export default App

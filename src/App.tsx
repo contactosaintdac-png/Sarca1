@@ -349,7 +349,7 @@ function App() {
   const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.9])
 
   return (
-    <div className="min-h-screen relative text-white overflow-x-hidden selection:bg-brand-purple/30">
+    <div className="min-h-screen relative text-white overflow-x-hidden selection:bg-brand-purple/30 bg-transparent">
       <FluidBackground />
       <Particles />
       <CustomCursor />

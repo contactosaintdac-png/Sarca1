@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion'
+import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionTemplate, useMotionValue, useSpring as useFramerSpring } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
 import { 
   MessageCircle, ShoppingBag, Instagram, ChevronDown, Play, Heart, 
@@ -217,23 +217,46 @@ function InstagramMini() {
               </div>
             </div>
 
-            <div className="mt-12 pt-8 border-t border-white/5 flex gap-5 sm:gap-8 overflow-x-auto no-scrollbar pb-4 justify-start sm:justify-center px-2 sm:px-0">
-              {HIGHLIGHTS.map(h => (
-                <motion.a 
-                  key={h.id} 
-                  href={h.url}
-                  target="_blank"
-                  whileHover={{ scale: 1.05 }} 
-                  className="flex flex-col items-center gap-3 cursor-pointer flex-shrink-0 min-w-[70px] sm:min-w-[90px]"
-                >
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/5 p-[2px] ring-2 ring-white/5 hover:ring-brand-purple transition-all">
-                    <div className="w-full h-full rounded-full bg-black p-[2px] overflow-hidden">
-                      <img src={h.img} alt={h.label} className="w-full h-full object-cover rounded-full" />
+            {/* ── Highlights Premium ── */}
+            <div className="mt-12 pt-8 border-t border-white/5 relative">
+              {/* Fade masks at edges for depth effect */}
+              <div className="absolute left-0 top-8 bottom-0 w-12 bg-gradient-to-r from-black/30 to-transparent z-10 pointer-events-none" />
+              <div className="absolute right-0 top-8 bottom-0 w-12 bg-gradient-to-l from-black/30 to-transparent z-10 pointer-events-none" />
+
+              <div
+                id="highlights-scroll"
+                className="flex gap-6 overflow-x-auto no-scrollbar pb-4 px-4 scroll-smooth"
+                style={{ scrollSnapType: 'x mandatory' }}
+              >
+                {HIGHLIGHTS.map(h => (
+                  <motion.a
+                    key={h.id}
+                    href={h.url}
+                    target="_blank"
+                    whileHover={{ scale: 1.08, y: -4 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    className="flex flex-col items-center gap-3 flex-shrink-0"
+                    style={{ scrollSnapAlign: 'start' }}
+                  >
+                    {/* Ring gradiente de marca */}
+                    <div className="relative w-[72px] h-[72px] sm:w-[84px] sm:h-[84px]">
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue opacity-0 hover:opacity-100 transition-opacity duration-300 blur-[6px]" />
+                      <div className="relative w-full h-full rounded-full p-[2.5px] bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue">
+                        <div className="w-full h-full rounded-full bg-[#0e0e12] p-[2px] overflow-hidden">
+                          <img
+                            src={h.img}
+                            alt={h.label}
+                            className="w-full h-full object-cover rounded-full"
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <span className="text-[10px] sm:text-xs text-white/50 font-bold text-center w-full truncate px-1">{h.label}</span>
-                </motion.a>
-              ))}
+                    <span className="text-[11px] text-white/50 font-semibold text-center max-w-[80px] truncate">
+                      {h.label}
+                    </span>
+                  </motion.a>
+                ))}
+              </div>
             </div>
           </div>
         </FadeUp>
@@ -344,19 +367,33 @@ function VerifiedBadge({ className }: { className?: string }) {
 function App() {
   const heroRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll()
-  
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
-  const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.9])
+  const heroScale  = useTransform(scrollYProgress, [0, 0.2], [1, 0.9])
+
+  // ── Aurora interactiva: el fondo sigue al mouse ──────────────────────────
+  const [mouse, setMouse] = useState({ x: 30, y: 30 })
+  const springX = useFramerSpring(mouse.x, { stiffness: 40, damping: 20 })
+  const springY = useFramerSpring(mouse.y, { stiffness: 40, damping: 20 })
+
+  useEffect(() => {
+    const move = (e: MouseEvent) => {
+      setMouse({
+        x: (e.clientX / window.innerWidth)  * 100,
+        y: (e.clientY / window.innerHeight) * 100,
+      })
+    }
+    window.addEventListener('mousemove', move)
+    return () => window.removeEventListener('mousemove', move)
+  }, [])
 
   return (
-    <div 
-      className="min-h-screen relative text-white overflow-x-hidden selection:bg-brand-purple/30 bg-transparent"
+    <motion.div 
+      className="min-h-screen relative text-white overflow-x-hidden selection:bg-brand-purple/30"
       style={{
-        background: `
-          radial-gradient(ellipse 80% 70% at 10% 10%,  rgba(124, 58, 237, 0.55) 0%, transparent 60%),
-          radial-gradient(ellipse 80% 70% at 90% 90%,  rgba(29, 78, 216, 0.55)  0%, transparent 60%),
-          radial-gradient(ellipse 60% 55% at 80% 5%,   rgba(219, 39, 119, 0.4)  0%, transparent 55%),
-          radial-gradient(ellipse 55% 50% at 20% 90%,  rgba(239, 68, 68, 0.35)  0%, transparent 55%),
+        background: useMotionTemplate`
+          radial-gradient(ellipse 80% 70% at ${springX}% ${springY}%, rgba(124,58,237,0.6) 0%, transparent 55%),
+          radial-gradient(ellipse 70% 60% at ${useTransform(springX, x => 100 - x)}% ${useTransform(springY, y => 100 - y)}%, rgba(29,78,216,0.55) 0%, transparent 55%),
+          radial-gradient(ellipse 55% 50% at 80% 5%,  rgba(219,39,119,0.35) 0%, transparent 50%),
           #06060a
         `
       }}
@@ -498,7 +535,7 @@ function App() {
           </FadeUp>
         </div>
       </footer>
-    </div>
+    </motion.div>
   )
 }
 

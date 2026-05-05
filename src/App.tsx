@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from 'react'
 import { 
   MessageCircle, ShoppingBag, Instagram, ChevronDown, Play, Heart, 
   Send, Bookmark, MoreHorizontal, ExternalLink, Users, Zap, Star,
-  Pin, Grid, Video, User, Phone, AtSign, Copy
+  Pin, Grid, Video, User, Phone, Copy
 } from 'lucide-react'
 import FluidBackground from './components/FluidBackground'
 import CustomCursor from './components/CustomCursor'

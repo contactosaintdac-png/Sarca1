@@ -372,28 +372,40 @@ function App() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
   const heroScale  = useTransform(scrollYProgress, [0, 0.2], [1, 0.9])
 
-  // ── Admin Panel ───────────────────────────────────────────────────────────
-  const [showAdmin, setShowAdmin] = useState(() => window.location.hash === '#admin')
+  // ── Admin Panel: triple clic (desktop) + long press (móvil) ─────────────
+  const [showAdmin, setShowAdmin] = useState(false)
   const { links: dynamicLinks } = useLinks()
   const visibleLinks = dynamicLinks.filter(l => l.visible)
+  const clickCount = useRef(0)
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'A') setShowAdmin(true)
+  // Triple clic → admin
+  const handleProfileClick = () => {
+    clickCount.current += 1
+    if (clickTimer.current) clearTimeout(clickTimer.current)
+    if (clickCount.current >= 3) {
+      clickCount.current = 0
+      setShowAdmin(true)
+    } else {
+      clickTimer.current = setTimeout(() => {
+        if (clickCount.current < 3) window.open(PROFILE.url, '_blank')
+        clickCount.current = 0
+      }, 400)
     }
-    const handleHash = () => setShowAdmin(window.location.hash === '#admin')
-    window.addEventListener('keydown', handleKey)
-    window.addEventListener('hashchange', handleHash)
-    return () => {
-      window.removeEventListener('keydown', handleKey)
-      window.removeEventListener('hashchange', handleHash)
-    }
-  }, [])
-
-  const closeAdmin = () => {
-    setShowAdmin(false)
-    window.history.replaceState(null, '', window.location.pathname)
   }
+
+  // Long press → admin (móvil)
+  const handlePressStart = () => {
+    longPressTimer.current = setTimeout(() => {
+      setShowAdmin(true)
+    }, 1500)
+  }
+  const handlePressEnd = () => {
+    if (longPressTimer.current) clearTimeout(longPressTimer.current)
+  }
+
+  const closeAdmin = () => setShowAdmin(false)
 
   const [mouse, setMouse] = useState({ x: 30, y: 30 })
   const springX = useFramerSpring(mouse.x, { stiffness: 40, damping: 20 })
@@ -437,8 +449,13 @@ function App() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', damping: 15 }}
-            className="relative w-32 h-32 md:w-48 md:h-48 group cursor-pointer"
-            onClick={() => window.open(PROFILE.url, '_blank')}
+            className="relative w-32 h-32 md:w-48 md:h-48 group cursor-pointer select-none"
+            onClick={handleProfileClick}
+            onMouseDown={handlePressStart}
+            onMouseUp={handlePressEnd}
+            onMouseLeave={handlePressEnd}
+            onTouchStart={handlePressStart}
+            onTouchEnd={handlePressEnd}
           >
             <div className="w-full h-full rounded-full bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue p-[4px] shadow-[0_0_50px_rgba(139,92,246,0.3)] group-hover:shadow-[0_0_80px_rgba(139,92,246,0.5)] transition-shadow">
               <div className="w-full h-full rounded-full bg-black p-[3px] overflow-hidden">

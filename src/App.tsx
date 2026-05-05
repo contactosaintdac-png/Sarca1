@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from 'react'
 import { 
   MessageCircle, ShoppingBag, Instagram, ChevronDown, Play, Heart, 
   Send, Bookmark, MoreHorizontal, ExternalLink, Users, Zap, Star,
-  Pin, Grid, Video, User, Phone, Copy
+  Pin, Grid, Video, User, Phone, AtSign, Copy
 } from 'lucide-react'
 import FluidBackground from './components/FluidBackground'
 import CustomCursor from './components/CustomCursor'
@@ -176,110 +176,122 @@ function LinkCard({ link, index }: { link: typeof LINKS[0]; index: number }) {
 
 // ─── INSTAGRAM MINI-FEED ───────────────────────────────────────────────────────
 function InstagramMini() {
-  const [likedPosts, setLikedPosts] = useState<number[]>([])
-  const toggleLike = (id: number) => setLikedPosts(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id])
-
   return (
     <section className="py-24 md:py-32 relative">
-      <div className="max-w-5xl mx-auto px-4 md:px-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <FadeUp>
-          <div className="text-center mb-16">
-            <p className="text-white/40 text-sm font-bold uppercase tracking-widest mb-4">Explorá mi contenido</p>
-            <h2 className="text-3xl md:text-5xl font-black mb-6">
-              El universo de <GradientText>@sarcaone</GradientText>
+          <div className="text-center mb-16 px-4">
+            <p className="text-white/40 text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em] mb-4">Explorá mi contenido</p>
+            <h2 className="text-3xl sm:text-5xl font-black mb-6 leading-tight">
+              El universo de <br className="sm:hidden" /> <GradientText>@sarcaone</GradientText>
             </h2>
           </div>
         </FadeUp>
 
         <FadeUp delay={0.1}>
-          <div className="glass rounded-3xl p-6 md:p-8 mb-8 shadow-premium">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
-              <div className="w-24 h-24 md:w-32 md:h-32 rounded-full p-[3px] bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue flex-shrink-0">
-                <div className="w-full h-full rounded-full bg-black p-[2px] overflow-hidden">
-                  <img src={profileImg} alt="sarcaone" className="w-full h-full rounded-full object-cover" />
-                </div>
-              </div>
-              <div className="flex-1 text-center sm:text-left">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
-                  <span className="font-black text-2xl tracking-tight">{PROFILE.handle}</span>
-                  <div className="flex gap-2">
-                    <a href={PROFILE.url} target="_blank" className="bg-white text-black px-6 py-1.5 rounded-lg text-sm font-bold hover:bg-white/90 transition-colors">Seguir</a>
-                    <a href="https://www.instagram.com/direct/t/110371723683459/" target="_blank" className="bg-white/10 px-6 py-1.5 rounded-lg text-sm font-bold hover:bg-white/20 transition-colors">Mensaje</a>
+          <div className="glass rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 mb-8 shadow-premium border-white/5 overflow-hidden">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8 sm:gap-12">
+              {/* Profile Pic */}
+              <div className="relative w-28 h-28 sm:w-40 sm:h-40 flex-shrink-0">
+                 <div className="w-full h-full rounded-full p-[3px] bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue">
+                  <div className="w-full h-full rounded-full bg-black p-[2px] overflow-hidden">
+                    <img src={profileImg} alt="sarcaone" className="w-full h-full rounded-full object-cover" />
                   </div>
                 </div>
-                <div className="flex justify-center sm:justify-start gap-8 text-base mb-4">
-                  <div><span className="font-bold">{PROFILE.posts}</span> <span className="text-white/50">posts</span></div>
-                  <div><span className="font-bold">{PROFILE.followers}</span> <span className="text-white/50">seguidores</span></div>
-                  <div><span className="font-bold">{PROFILE.following}</span> <span className="text-white/50">seguidos</span></div>
+              </div>
+
+              {/* Profile Info */}
+              <div className="flex-1 w-full">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-6">
+                  <span className="font-black text-2xl sm:text-3xl tracking-tight text-center sm:text-left">{PROFILE.handle}</span>
+                  <div className="flex gap-2 justify-center sm:justify-start">
+                    <a href={PROFILE.url} target="_blank" className="flex-1 sm:flex-none text-center bg-white text-black px-8 py-2 rounded-xl text-sm font-black hover:bg-white/90 transition-colors">Seguir</a>
+                    <a href="https://www.instagram.com/direct/t/110371723683459/" target="_blank" className="flex-1 sm:flex-none text-center bg-white/10 px-8 py-2 rounded-xl text-sm font-black hover:bg-white/20 transition-colors">Mensaje</a>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-white/80 text-sm md:text-base max-w-lg leading-relaxed whitespace-pre-line">{PROFILE.bio}</p>
-                  <a href={PROFILE.threadsUrl} target="_blank" className="inline-flex items-center gap-1.5 text-brand-blue text-sm font-bold hover:underline">
-                    <AtSign className="w-3.5 h-3.5" /> threads.com/@sarcaone
+                
+                {/* Stats */}
+                <div className="flex justify-around sm:justify-start gap-0 sm:gap-12 text-sm sm:text-base mb-8 border-y sm:border-y-0 border-white/5 py-4 sm:py-0">
+                  <div className="text-center sm:text-left"><div className="font-black text-lg">{PROFILE.posts}</div><div className="text-white/40 text-xs uppercase tracking-widest">posts</div></div>
+                  <div className="text-center sm:text-left"><div className="font-black text-lg">{PROFILE.followers}</div><div className="text-white/40 text-xs uppercase tracking-widest">seguidores</div></div>
+                  <div className="text-center sm:text-left"><div className="font-black text-lg">{PROFILE.following}</div><div className="text-white/40 text-xs uppercase tracking-widest">seguidos</div></div>
+                </div>
+
+                {/* Bio */}
+                <div className="space-y-3 text-center sm:text-left">
+                  <p className="text-white/80 text-sm sm:text-lg leading-relaxed font-medium">{PROFILE.bio}</p>
+                  <a href={PROFILE.threadsUrl} target="_blank" className="inline-flex items-center gap-2 text-brand-blue text-sm font-bold hover:underline">
+                    <AtSign className="w-4 h-4" /> threads.net/@sarcaone
                   </a>
                 </div>
               </div>
             </div>
 
-            {/* Highlights - Centered */}
-            <div className="mt-10 pt-8 border-t border-white/5 flex gap-6 overflow-x-auto no-scrollbar pb-2 justify-center">
+            {/* Highlights - Responsive Scroll */}
+            <div className="mt-12 pt-8 border-t border-white/5 flex gap-5 sm:gap-8 overflow-x-auto no-scrollbar pb-4 justify-start sm:justify-center px-2 sm:px-0">
               {HIGHLIGHTS.map(h => (
                 <motion.a 
                   key={h.id} 
                   href={h.url}
                   target="_blank"
                   whileHover={{ scale: 1.05 }} 
-                  className="flex flex-col items-center gap-3 cursor-pointer flex-shrink-0"
+                  className="flex flex-col items-center gap-3 cursor-pointer flex-shrink-0 min-w-[70px] sm:min-w-[90px]"
                 >
-                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 p-[2.5px] hover:bg-gradient-to-tr from-brand-red via-brand-purple to-brand-blue transition-colors">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/5 p-[2px] ring-2 ring-white/5 hover:ring-brand-purple transition-all">
                     <div className="w-full h-full rounded-full bg-black p-[2px] overflow-hidden">
                       <img src={h.img} alt={h.label} className="w-full h-full object-cover rounded-full" />
                     </div>
                   </div>
-                  <span className="text-[10px] md:text-xs text-white/70 font-bold text-center w-16 md:w-20 truncate">{h.label}</span>
+                  <span className="text-[10px] sm:text-xs text-white/50 font-bold text-center w-full truncate px-1">{h.label}</span>
                 </motion.a>
               ))}
             </div>
           </div>
         </FadeUp>
 
-        {/* Tab Navigation */}
-        <div className="flex justify-center border-t border-white/10 mb-8">
-          <div className="flex gap-12 pt-4">
-            <div className="flex items-center gap-2 text-xs font-bold border-t border-white -mt-4.5 pt-4 uppercase tracking-widest cursor-pointer">
-              <Grid className="w-4 h-4" /> Publicaciones
+        {/* Tab Navigation - Responsive */}
+        <div className="flex justify-center border-t border-white/5 mb-8 overflow-x-auto no-scrollbar">
+          <div className="flex gap-8 sm:gap-16 pt-0">
+            <div className="flex items-center gap-2 text-[10px] sm:text-xs font-black border-t-2 border-white -mt-[2px] py-4 uppercase tracking-[0.2em] cursor-pointer">
+              <Grid className="w-4 h-4" /> <span className="hidden sm:inline">Publicaciones</span> <span className="sm:hidden">Posts</span>
             </div>
-            <div className="flex items-center gap-2 text-xs font-bold text-white/40 uppercase tracking-widest cursor-pointer hover:text-white transition-colors">
+            <div className="flex items-center gap-2 text-[10px] sm:text-xs font-black text-white/30 py-4 uppercase tracking-[0.2em] cursor-pointer hover:text-white transition-colors">
               <Video className="w-4 h-4" /> Reels
             </div>
-            <div className="flex items-center gap-2 text-xs font-bold text-white/40 uppercase tracking-widest cursor-pointer hover:text-white transition-colors">
-              <User className="w-4 h-4" /> Etiquetadas
+            <div className="flex items-center gap-2 text-[10px] sm:text-xs font-black text-white/30 py-4 uppercase tracking-[0.2em] cursor-pointer hover:text-white transition-colors">
+              <User className="w-4 h-4" /> <span className="hidden sm:inline">Etiquetadas</span> <span className="sm:hidden">Tags</span>
             </div>
           </div>
         </div>
 
-        {/* Post Grid - 4:5 Aspect Ratio */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
+        {/* Post Grid - 4:5 Responsive */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 px-1 sm:px-0">
           {POSTS.map((post, idx) => (
             <FadeUp key={post.id} delay={idx * 0.05}>
               <motion.a
                 href={post.url}
                 target="_blank"
                 whileHover={{ scale: 1.02 }}
-                className="relative block aspect-[4/5] rounded-xl overflow-hidden group cursor-pointer"
+                className="relative block aspect-[4/5] rounded-lg sm:rounded-2xl overflow-hidden group cursor-pointer"
               >
                 <img src={post.img} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-6">
-                  <div className="flex items-center gap-2 font-bold"><Heart className="w-6 h-6 fill-white" /> {post.likes}</div>
-                  <div className="flex items-center gap-2 font-bold"><MessageCircle className="w-6 h-6 fill-white" /> {post.comments}</div>
+                
+                {/* Mobile Overlays (Simplified icons) */}
+                <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex flex-col gap-2">
+                  {post.pinned && (
+                    <div className="bg-black/60 backdrop-blur-md p-1.5 rounded-full ring-1 ring-white/20">
+                      <Pin className="w-3 h-3 sm:w-4 sm:h-4 text-white fill-white rotate-45" />
+                    </div>
+                  )}
                 </div>
-                {post.pinned && (
-                  <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md p-1.5 rounded-full ring-1 ring-white/20">
-                    <Pin className="w-4 h-4 text-white fill-white rotate-45" />
-                  </div>
-                )}
-                <div className="absolute top-3 left-3 bg-black/40 backdrop-blur-md p-1 rounded-md">
-                   {post.type === 'carousel' ? <Copy className="w-4 h-4 text-white" /> : <Video className="w-4 h-4 text-white" />}
+                <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-black/40 backdrop-blur-md p-1 rounded-md sm:rounded-lg">
+                   {post.type === 'carousel' ? <Copy className="w-3 h-3 sm:w-4 sm:h-4 text-white" /> : <Video className="w-3 h-3 sm:w-4 sm:h-4 text-white" />}
+                </div>
+
+                {/* Hover Interaction (Desktop Only) */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center gap-6">
+                  <div className="flex items-center gap-2 font-black"><Heart className="w-6 h-6 fill-white" /> {post.likes}</div>
+                  <div className="flex items-center gap-2 font-black"><MessageCircle className="w-6 h-6 fill-white" /> {post.comments}</div>
                 </div>
               </motion.a>
             </FadeUp>
@@ -288,11 +300,11 @@ function InstagramMini() {
 
         {/* View All Reels Button */}
         <FadeUp delay={0.3}>
-          <div className="mt-16 text-center">
+          <div className="mt-12 sm:mt-20 text-center px-4">
             <a 
               href={PROFILE.reelsUrl}
               target="_blank"
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-brand-purple to-brand-blue px-10 py-4 rounded-full text-sm font-black uppercase tracking-widest hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] transition-all active:scale-95"
+              className="inline-flex w-full sm:w-auto items-center justify-center gap-4 bg-gradient-to-r from-brand-purple to-brand-blue px-12 py-5 rounded-2xl text-xs sm:text-sm font-black uppercase tracking-[0.2em] hover:shadow-[0_0_40px_rgba(139,92,246,0.5)] transition-all active:scale-95"
             >
               <Play className="w-4 h-4 fill-white" /> Ver todos los Reels
             </a>
@@ -307,21 +319,21 @@ function InstagramMini() {
 function Particles() {
   return (
     <div className="fixed inset-0 pointer-events-none z-0">
-      {[...Array(20)].map((_, i) => (
+      {[...Array(15)].map((_, i) => (
         <motion.div
           key={i}
           initial={{ 
-            x: Math.random() * window.innerWidth, 
-            y: Math.random() * window.innerHeight,
-            opacity: Math.random() * 0.3 + 0.1,
+            x: Math.random() * 100 + '%', 
+            y: Math.random() * 100 + '%',
+            opacity: Math.random() * 0.2 + 0.1,
             scale: Math.random() * 0.5 + 0.5
           }}
           animate={{ 
-            y: [null, Math.random() * -100 - 50],
-            x: [null, (Math.random() - 0.5) * 50]
+            y: [null, '-10%'],
+            opacity: [0, 0.2, 0]
           }}
           transition={{ 
-            duration: Math.random() * 10 + 10, 
+            duration: Math.random() * 10 + 15, 
             repeat: Infinity, 
             ease: "linear" 
           }}
@@ -335,7 +347,16 @@ function Particles() {
 // ─── AT SIGN ICON FOR THREADS ──────────────────────────────────────────────────
 function AtSign({ className }: { className?: string }) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg>
+  )
+}
+
+// ─── VERIFIED BADGE ICON ───────────────────────────────────────────────────────
+function VerifiedBadge({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("text-[#0095f6]", className)}>
+      <path d="M12 2c-.176 0-.351.002-.525.006a1 1 0 0 0-.756.406l-1.5 2a1 1 0 0 1-.8.4h-2.5a1 1 0 0 0-1 1v2.5a1 1 0 0 1-.4.8l-2 1.5a1 1 0 0 0-.406.756c-.004.174-.006.349-.006.525s.002.351.006.525a1 1 0 0 0 .406.756l2 1.5a1 1 0 0 1 .4.8v2.5a1 1 0 0 0 1 1h2.5a1 1 0 0 1 .8.4l1.5 2a1 1 0 0 0 .756.406c.174.004.349.006.525.006s.351-.002.525-.006a1 1 0 0 0 .756-.406l1.5-2a1 1 0 0 1 .8-.4h2.5a1 1 0 0 0 1-1v-2.5a1 1 0 0 1 .4-.8l2-1.5a1 1 0 0 0 .406-.756c.004-.174.006-.349.006-.525s-.002-.351-.006-.525a1 1 0 0 0-.406-.756l-2-1.5a1 1 0 0 1-.4-.8V5.912a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-1.5-2A1 1 0 0 0 12.525 2.006C12.351 2.002 12.176 2 12 2zm4.707 9.293-5.5 5.5a1 1 0 0 1-1.414 0l-2.5-2.5a1 1 0 1 1 1.414-1.414L10.5 14.586l4.793-4.793a1 1 0 0 1 1.414 1.414z" />
+    </svg>
   )
 }
 
@@ -376,9 +397,7 @@ function App() {
               </div>
             </div>
             <div className="absolute -bottom-1 -right-1 bg-black rounded-full p-0.5 group-hover:scale-110 transition-transform">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10 md:w-14 md:h-14 text-[#0095f6]">
-                <path d="M12 2c-.176 0-.351.002-.525.006a1 1 0 0 0-.756.406l-1.5 2a1 1 0 0 1-.8.4h-2.5a1 1 0 0 0-1 1v2.5a1 1 0 0 1-.4.8l-2 1.5a1 1 0 0 0-.406.756c-.004.174-.006.349-.006.525s.002.351.006.525a1 1 0 0 0 .406.756l2 1.5a1 1 0 0 1 .4.8v2.5a1 1 0 0 0 1 1h2.5a1 1 0 0 1 .8.4l1.5 2a1 1 0 0 0 .756.406c.174.004.349.006.525.006s.351-.002.525-.006a1 1 0 0 0 .756-.406l1.5-2a1 1 0 0 1 .8-.4h2.5a1 1 0 0 0 1-1v-2.5a1 1 0 0 1 .4-.8l2-1.5a1 1 0 0 0 .406-.756c.004-.174.006-.349.006-.525s-.002-.351-.006-.525a1 1 0 0 0-.406-.756l-2-1.5a1 1 0 0 1-.4-.8V5.912a1 1 0 0 0-1-1h-2.5a1 1 0 0 1-.8-.4l-1.5-2A1 1 0 0 0 12.525 2.006C12.351 2.002 12.176 2 12 2zm4.707 9.293-5.5 5.5a1 1 0 0 1-1.414 0l-2.5-2.5a1 1 0 1 1 1.414-1.414L10.5 14.586l4.793-4.793a1 1 0 0 1 1.414 1.414z" />
-              </svg>
+              <VerifiedBadge className="w-10 h-10 md:w-14 md:h-14" />
             </div>
           </motion.div>
 

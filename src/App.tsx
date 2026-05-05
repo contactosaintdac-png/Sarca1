@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform, useInView, AnimatePresence, useSpring as useFramerSpring } from 'framer-motion'
+import { motion, useScroll, useTransform, useInView, AnimatePresence, useMotionValue, useSpring as useFramerSpring } from 'framer-motion'
 import { useRef, useState, useEffect, Suspense } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { MeshDistortMaterial, Sphere, Float, MeshTransmissionMaterial } from '@react-three/drei'

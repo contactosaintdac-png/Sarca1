@@ -1,65 +1,88 @@
-import { motion } from 'framer-motion'
-
-const blobs = [
-  { color: '#8B5CF6', size: 600, x: '-10%', y: '-10%', duration: 18 },
-  { color: '#3B82F6', size: 700, x: '50%',  y: '30%',  duration: 22 },
-  { color: '#EF4444', size: 500, x: '10%',  y: '60%',  duration: 20 },
-  { color: '#EC4899', size: 450, x: '70%',  y: '-5%',  duration: 25 },
-  { color: '#8B5CF6', size: 400, x: '80%',  y: '70%',  duration: 16 },
-]
-
 const FluidBackground = () => {
   return (
-    <div className="fixed inset-0 -z-10 bg-[#030303] overflow-hidden">
+    <>
+      <style>{`
+        @keyframes blobMove1 {
+          0%, 100% { transform: translate(0px, 0px) scale(1); }
+          33%       { transform: translate(60px, -40px) scale(1.1); }
+          66%       { transform: translate(-30px, 50px) scale(0.95); }
+        }
+        @keyframes blobMove2 {
+          0%, 100% { transform: translate(0px, 0px) scale(1); }
+          33%       { transform: translate(-80px, 60px) scale(1.15); }
+          66%       { transform: translate(50px, -70px) scale(0.9); }
+        }
+        @keyframes blobMove3 {
+          0%, 100% { transform: translate(0px, 0px) scale(1); }
+          50%       { transform: translate(40px, 40px) scale(1.2); }
+        }
+        @keyframes blobMove4 {
+          0%, 100% { transform: translate(0px, 0px) scale(1); }
+          50%       { transform: translate(-60px, -50px) scale(1.1); }
+        }
+        .blob { position: absolute; border-radius: 9999px; }
+      `}</style>
 
-      {/* ── Blobs animados en CSS puro ── */}
-      {blobs.map((blob, i) => (
-        <motion.div
-          key={i}
-          className="absolute rounded-full"
-          style={{
-            width: blob.size,
-            height: blob.size,
-            left: blob.x,
-            top: blob.y,
-            background: blob.color,
-            filter: 'blur(120px)',
-            opacity: 0.25,
-          }}
-          animate={{
-            x: [0, 60, -40, 80, 0],
-            y: [0, -50, 40, -30, 0],
-            scale: [1, 1.15, 0.9, 1.05, 1],
-          }}
-          transition={{
-            duration: blob.duration,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: i * 1.5,
-          }}
-        />
-      ))}
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: -10,
+        background: '#06060a', overflow: 'hidden',
+      }}>
 
-      {/* ── Grid mesh sutil (glassmorphism) ── */}
-      <div
-        className="absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
+        {/* Blob 1 — Violeta */}
+        <div className="blob" style={{
+          width: 700, height: 700,
+          top: '-15%', left: '-10%',
+          background: '#7c3aed',
+          filter: 'blur(80px)',
+          opacity: 0.45,
+          animation: 'blobMove1 20s ease-in-out infinite',
+        }} />
+
+        {/* Blob 2 — Azul */}
+        <div className="blob" style={{
+          width: 800, height: 800,
+          top: '20%', right: '-15%',
+          background: '#2563eb',
+          filter: 'blur(90px)',
+          opacity: 0.4,
+          animation: 'blobMove2 25s ease-in-out infinite',
+        }} />
+
+        {/* Blob 3 — Rosa */}
+        <div className="blob" style={{
+          width: 600, height: 600,
+          bottom: '5%', left: '25%',
+          background: '#db2777',
+          filter: 'blur(70px)',
+          opacity: 0.35,
+          animation: 'blobMove3 18s ease-in-out infinite',
+        }} />
+
+        {/* Blob 4 — Rojo */}
+        <div className="blob" style={{
+          width: 500, height: 500,
+          top: '50%', left: '60%',
+          background: '#dc2626',
+          filter: 'blur(80px)',
+          opacity: 0.3,
+          animation: 'blobMove4 22s ease-in-out infinite',
+        }} />
+
+        {/* Grid mesh glassmorphism */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)',
           backgroundSize: '50px 50px',
-        }}
-      />
+        }} />
 
-      {/* ── Radial vignette para profundidad ── */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.6) 100%)',
-        }}
-      />
+        {/* Viñeta radial para profundidad */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.55) 100%)',
+        }} />
 
-    </div>
+      </div>
+    </>
   )
 }
 

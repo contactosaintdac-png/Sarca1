@@ -349,7 +349,18 @@ function App() {
   const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.9])
 
   return (
-    <div className="min-h-screen relative text-white overflow-x-hidden selection:bg-brand-purple/30 bg-transparent">
+    <div 
+      className="min-h-screen relative text-white overflow-x-hidden selection:bg-brand-purple/30 bg-transparent"
+      style={{
+        background: `
+          radial-gradient(ellipse 80% 70% at 10% 10%,  rgba(124, 58, 237, 0.55) 0%, transparent 60%),
+          radial-gradient(ellipse 80% 70% at 90% 90%,  rgba(29, 78, 216, 0.55)  0%, transparent 60%),
+          radial-gradient(ellipse 60% 55% at 80% 5%,   rgba(219, 39, 119, 0.4)  0%, transparent 55%),
+          radial-gradient(ellipse 55% 50% at 20% 90%,  rgba(239, 68, 68, 0.35)  0%, transparent 55%),
+          #06060a
+        `
+      }}
+    >
       <FluidBackground />
       <Particles />
       <CustomCursor />

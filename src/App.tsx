@@ -318,7 +318,7 @@ function InstagramMini() {
 // ─── FLOATING PARTICLES ────────────────────────────────────────────────────────
 function Particles() {
   return (
-    <div className="fixed inset-0 pointer-events-none z-0">
+    <div className="fixed inset-0 pointer-events-none z-[1]">
       {[...Array(15)].map((_, i) => (
         <motion.div
           key={i}
@@ -369,7 +369,7 @@ function App() {
   const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.9])
 
   return (
-    <div className="min-h-screen relative text-white overflow-x-hidden selection:bg-brand-purple/30 bg-black">
+    <div className="min-h-screen relative text-white overflow-x-hidden selection:bg-brand-purple/30">
       <FluidBackground />
       <Particles />
       <CustomCursor />

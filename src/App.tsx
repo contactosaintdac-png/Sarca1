@@ -8,6 +8,8 @@ import {
 import FluidBackground from './components/FluidBackground'
 import CustomCursor from './components/CustomCursor'
 import GradientText from './components/GradientText'
+import AdminPanel from './components/AdminPanel'
+import { useLinks } from './hooks/useLinks'
 
 // ─── ASSET IMPORTS ─────────────────────────────────────────────────────────────
 import profileImg from './assets/instagram/profile.jpg'
@@ -370,7 +372,29 @@ function App() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
   const heroScale  = useTransform(scrollYProgress, [0, 0.2], [1, 0.9])
 
-  // ── Aurora interactiva: el fondo sigue al mouse ──────────────────────────
+  // ── Admin Panel ───────────────────────────────────────────────────────────
+  const [showAdmin, setShowAdmin] = useState(() => window.location.hash === '#admin')
+  const { links: dynamicLinks } = useLinks()
+  const visibleLinks = dynamicLinks.filter(l => l.visible)
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') setShowAdmin(true)
+    }
+    const handleHash = () => setShowAdmin(window.location.hash === '#admin')
+    window.addEventListener('keydown', handleKey)
+    window.addEventListener('hashchange', handleHash)
+    return () => {
+      window.removeEventListener('keydown', handleKey)
+      window.removeEventListener('hashchange', handleHash)
+    }
+  }, [])
+
+  const closeAdmin = () => {
+    setShowAdmin(false)
+    window.history.replaceState(null, '', window.location.pathname)
+  }
+
   const [mouse, setMouse] = useState({ x: 30, y: 30 })
   const springX = useFramerSpring(mouse.x, { stiffness: 40, damping: 20 })
   const springY = useFramerSpring(mouse.y, { stiffness: 40, damping: 20 })
@@ -401,6 +425,11 @@ function App() {
       <FluidBackground />
       <Particles />
       <CustomCursor />
+
+      {/* ── Admin Panel ── */}
+      <AnimatePresence>
+        {showAdmin && <AdminPanel onClose={closeAdmin} />}
+      </AnimatePresence>
 
       <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 pt-20">
         <motion.div style={{ opacity: heroOpacity, scale: heroScale }} className="max-w-3xl mx-auto flex flex-col items-center gap-8">
@@ -499,7 +528,7 @@ function App() {
             <p className="text-white/40 text-lg">El primer paso para una comunicación más real.</p>
           </FadeUp>
           <div className="space-y-6">
-            {LINKS.map((link, i) => (
+            {visibleLinks.map((link, i) => (
               <LinkCard key={link.id} link={link} index={i} />
             ))}
           </div>

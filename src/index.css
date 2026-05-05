@@ -94,3 +94,26 @@ body {
 .shadow-premium-hover {
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
+
+/* Admin Panel Inputs */
+.admin-input {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+.admin-input:focus {
+  border-color: #8B5CF6;
+}
+.admin-input option {
+  background: #0d0d14;
+}

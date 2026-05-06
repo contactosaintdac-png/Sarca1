@@ -173,11 +173,20 @@ export default function AdminPanel({ onClose }: { onClose: () => void }) {
         style={{ backdropFilter: 'blur(20px)', background: 'rgba(0,0,0,0.95)' }}>
         <div className="min-h-full flex flex-col justify-center p-5 max-w-lg mx-auto">
           <LinkForm
-            initial={editing ?? {}}
+            initial={editing ?? EMPTY}
             onSave={data => {
-              if (editing) updateLink(editing.id, data)
-              else addLink(data as Omit<DynamicLink, 'id'>)
-              setEditing(null); setAdding(false)
+              if (editing) {
+                updateLink(editing.id, data)
+              } else {
+                const newLink = {
+                  ...EMPTY,
+                  ...data,
+                  visible: true
+                } as Omit<DynamicLink, 'id'>
+                addLink(newLink)
+              }
+              setEditing(null)
+              setAdding(false)
             }}
             onCancel={() => { setEditing(null); setAdding(false) }}
           />

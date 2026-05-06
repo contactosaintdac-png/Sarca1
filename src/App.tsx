@@ -248,6 +248,8 @@ function InstagramMini() {
                           <img
                             src={h.img}
                             alt={h.label}
+                            loading="lazy"
+                            decoding="async"
                             className="w-full h-full object-cover rounded-full"
                           />
                         </div>
@@ -286,7 +288,7 @@ function InstagramMini() {
                 whileHover={{ scale: 1.02 }}
                 className="relative block aspect-[4/5] rounded-lg sm:rounded-2xl overflow-hidden group cursor-pointer"
               >
-                <img src={post.img} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+                <img src={post.img} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
                 
                 <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex flex-col gap-2">
                   {post.pinned && (
@@ -380,7 +382,7 @@ function App() {
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Triple clic → admin
+  // Triple clic → admin (sin redirigir en 1 o 2 clics)
   const handleProfileClick = () => {
     clickCount.current += 1
     if (clickTimer.current) clearTimeout(clickTimer.current)
@@ -389,9 +391,8 @@ function App() {
       setShowAdmin(true)
     } else {
       clickTimer.current = setTimeout(() => {
-        if (clickCount.current < 3) window.open(PROFILE.url, '_blank')
         clickCount.current = 0
-      }, 400)
+      }, 600)
     }
   }
 

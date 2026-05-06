@@ -428,8 +428,9 @@ function App() {
       className="min-h-screen relative text-white overflow-x-hidden selection:bg-brand-purple/30"
       style={{
         background: useMotionTemplate`
-          radial-gradient(circle 800px at ${springX}% ${springY}%, rgba(124,58,237,0.4) 0%, transparent 80%),
-          radial-gradient(circle 600px at ${useTransform(springX, x => 100 - x)}% ${useTransform(springY, y => 100 - y)}%, rgba(29,78,216,0.3) 0%, transparent 80%),
+          radial-gradient(circle 800px at ${springX}% ${springY}%, rgba(124,58,237,0.7) 0%, transparent 80%),
+          radial-gradient(circle 600px at ${useTransform(springX, x => 100 - x)}% ${useTransform(springY, y => 100 - y)}%, rgba(29,78,216,0.6) 0%, transparent 80%),
+          radial-gradient(circle 500px at 80% 10%, rgba(219,39,119,0.4) 0%, transparent 70%),
           #06060a
         `
       }}

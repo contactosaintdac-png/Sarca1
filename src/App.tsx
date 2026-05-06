@@ -122,7 +122,7 @@ function FadeUp({ children, delay = 0, className = '' }: { children: React.React
   )
 }
 
-function LinkCard({ link, index }: { link: typeof LINKS[0]; index: number }) {
+function LinkCard({ link, index }: { link: import('./hooks/useLinks').DynamicLink; index: number }) {
   const [hovered, setHovered] = useState(false)
   
   return (

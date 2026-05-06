@@ -12,20 +12,20 @@ import AdminPanel from './components/AdminPanel'
 import { useLinks } from './hooks/useLinks'
 
 // ─── ASSET IMPORTS ─────────────────────────────────────────────────────────────
-import profileImg from './assets/instagram/profile.jpg'
-import hHearts from './assets/instagram/h-hearts.jpg'
-import hReels from './assets/instagram/h-reels.jpg'
-import hYo from './assets/instagram/h-yo.jpg'
-import hBuenosDias from './assets/instagram/h-buenosdias.jpg'
-import hDonaciones from './assets/instagram/h-donaciones.jpg'
-import h111 from './assets/instagram/h-111.jpg'
-import hPalomo from './assets/instagram/h-palomo.jpg'
-import post1 from './assets/instagram/post1.jpg'
-import post2 from './assets/instagram/post2.jpg'
-import post3 from './assets/instagram/post3.jpg'
-import post4 from './assets/instagram/post4.jpg'
-import post5 from './assets/instagram/post5.jpg'
-import post6 from './assets/instagram/post6.jpg'
+import profileImg from './assets/instagram/profile.webp'
+import hHearts from './assets/instagram/h-hearts.webp'
+import hReels from './assets/instagram/h-reels.webp'
+import hYo from './assets/instagram/h-yo.webp'
+import hBuenosDias from './assets/instagram/h-buenosdias.webp'
+import hDonaciones from './assets/instagram/h-donaciones.webp'
+import h111 from './assets/instagram/h-111.webp'
+import hPalomo from './assets/instagram/h-palomo.webp'
+import post1 from './assets/instagram/post1.webp'
+import post2 from './assets/instagram/post2.webp'
+import post3 from './assets/instagram/post3.webp'
+import post4 from './assets/instagram/post4.webp'
+import post5 from './assets/instagram/post5.webp'
+import post6 from './assets/instagram/post6.webp'
 
 // ─── BRAND DATA ────────────────────────────────────────────────────────────────
 const PROFILE = {
@@ -347,7 +347,7 @@ function Particles() {
             repeat: Infinity, 
             ease: "linear" 
           }}
-          className="absolute w-1 h-1 bg-white rounded-full"
+          className="absolute w-1 h-1 bg-white rounded-full will-change-transform"
         />
       ))}
     </div>
@@ -428,9 +428,8 @@ function App() {
       className="min-h-screen relative text-white overflow-x-hidden selection:bg-brand-purple/30"
       style={{
         background: useMotionTemplate`
-          radial-gradient(ellipse 80% 70% at ${springX}% ${springY}%, rgba(124,58,237,0.6) 0%, transparent 55%),
-          radial-gradient(ellipse 70% 60% at ${useTransform(springX, x => 100 - x)}% ${useTransform(springY, y => 100 - y)}%, rgba(29,78,216,0.55) 0%, transparent 55%),
-          radial-gradient(ellipse 55% 50% at 80% 5%,  rgba(219,39,119,0.35) 0%, transparent 50%),
+          radial-gradient(circle 800px at ${springX}% ${springY}%, rgba(124,58,237,0.4) 0%, transparent 80%),
+          radial-gradient(circle 600px at ${useTransform(springX, x => 100 - x)}% ${useTransform(springY, y => 100 - y)}%, rgba(29,78,216,0.3) 0%, transparent 80%),
           #06060a
         `
       }}
